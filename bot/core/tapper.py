@@ -299,7 +299,7 @@ class Tapper:
         except cloudscraper.exceptions.CloudflareChallengeError as e:
             logger.error(f"{self.session_name} | Cloudflare challenge error occurred: {e}")
         except Exception as e:
-            logger.error(f"{self.session_name} | Unexpected error: {e}")
+            logger.error(f"{self.session_name} | Unexpected error: {str(e)}")
 
     async def send_clicks(self, http_client: aiohttp.ClientSession, click_count: int):
         clicks = {"clicks": click_count}
@@ -322,7 +322,7 @@ class Tapper:
         except asyncio.TimeoutError:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Request timed out.")
         except Exception as e:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Unexpected error: {e}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Unexpected error: {str(e)}")
 
     async def clicker(self, http_client: aiohttp.ClientSession):
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | AutoTapper started!")
