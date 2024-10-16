@@ -334,7 +334,11 @@ class Tapper:
 
             if time_since_last_click < timedelta(hours=1):
                 remaining_time = timedelta(hours=1) - time_since_last_click
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting for {remaining_time} until next click...")
+                
+                remaining_minutes = remaining_time.seconds // 60
+                remaining_seconds = remaining_time.seconds % 60
+
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting for {remaining_minutes} minutes {remaining_seconds} seconds until next click...")
                 await asyncio.sleep(remaining_time.total_seconds())
 
         total_clicks = 0
