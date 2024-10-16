@@ -489,7 +489,7 @@ class Tapper:
     async def run(self, proxy: str | None) -> None:
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
         http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
-        squad_name = settings.REF_ID if settings.REF_ID != '' else False
+        squad_name = settings.SQUAD_NAME if settings.SQUAD_NAME != '' else False
 
         if proxy:
             await self.check_proxy(http_client=http_client, proxy=proxy)
