@@ -468,7 +468,7 @@ class Tapper:
             }
 
             response = scraper.post(
-                f"https://clicker-api.crashgame247.io/tribes/{squad_name}/join",
+                f"{self.url}/tribes/{squad_name}/join",
                 headers=headers,
                 proxies=proxies
             )
