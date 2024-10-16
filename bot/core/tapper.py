@@ -502,7 +502,8 @@ class Tapper:
 
         if not whitelisted:
             logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😔 You are <magenta>not whitelisted</magenta> :(")
-            return
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😴 Going <cyan>sleep</cyan> 24h")
+            await asyncio.sleep(24 * 3600)
 
         if banned:
             logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😨 You are <red>banned...</red>")
