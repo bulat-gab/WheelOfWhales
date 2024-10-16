@@ -430,8 +430,6 @@ class Tapper:
         logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Balance: {balance}")
         http_client.headers["Authorization"] = f"Bearer {token}"
 
-        await self.claim_daily_bonus(http_client=http_client, proxy=proxy)
-
         if not whitelisted:
             logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | You are not whitelisted :(")
             return
