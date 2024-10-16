@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     REF_ID: str = ''
 
+    AUTO_TASKS: bool = False
+
     USE_PROXY_FROM_FILE: bool = False
 
 

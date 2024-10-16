@@ -251,8 +251,9 @@ class Tapper:
         last_login = resp_json.get("meta", {}).get("lastFirstDailyLoginAt")
         referrer = resp_json.get("referrerUsername")
         tribe = resp_json.get("user", {}).get("tribeId")
+        tasks = resp_json.get("meta", {}).get("regularTasks")
 
-        return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe)
+        return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks)
 
     async def claim_daily_bonus(self, http_client, proxy):
         url = f"{self.url}/user/bonus/claim"
@@ -357,7 +358,7 @@ class Tapper:
             intervals = [random.uniform(1, 2) for _ in clicks]
             total_time = sum(intervals)
 
-            logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>{total_time / 60:.2f} minutes</light-magenta>")
+            logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>~{total_time / 60:.2f} minutes</light-magenta>")
 
             total_clicks = 0
             for click_count, interval in zip(clicks, intervals):
@@ -380,6 +381,56 @@ class Tapper:
             logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ {total_clicks} clicks sent, <light-blue>sleeping for {sleep_time // 60} minutes.</light-blue>")
 
             await asyncio.sleep(sleep_time)
+
+    async def complete_tasks(self, tasks, http_client, proxy):
+        methods = {
+            'FOLLOW_WHALE_EN': self.verify,
+            'FOLLOW_WHEEL_OF_WHALES': self.verify,
+            'FOLLOW_TON_NEWS': self.verify,
+            'FOLLOW_WHALE_SPORTS': self.verify
+        }
+
+        for task in methods.keys():
+            if task not in tasks or not tasks[task]:
+                await methods[task](task)
+
+    async def verify(self, task, http_client, proxy): 
+        try:
+            headers = {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'Accept-Language': 'ru-RU,ru;q=0.9',
+                'Authorization': http_client.headers.get('Authorization'),
+                'Origin': 'https://clicker.crashgame247.io',
+                'Priority': 'u=1, i',
+                'Referer': 'https://clicker.crashgame247.io/',
+                'Sec-Ch-Ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+                'Sec-Ch-Ua-Mobile': '?1',
+                'Sec-Ch-Ua-Platform': '"Android"',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'User-Agent': http_client.headers.get('User-Agent')
+            }
+            
+            url = f'{self.url}/meta/tasks/{task}'
+            
+            scraper = cloudscraper.create_scraper()
+            
+            proxies = {
+                'http': proxy,
+                'https': proxy,
+            } if proxy else None
+
+            response = scraper.patch(url, headers=headers, proxies=proxies)
+
+            if response.status_code == 200:
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🥰 Task '{task}' <green>completed successfully.</green>")
+            else:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Failed</red> to verify task '{task}', status code: {response.status_code}")
+        
+        except Exception as error:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> verifying task '{task}': {error}")
 
     async def get_squad_info(self, http_client, squad_name):
         try:
@@ -441,7 +492,7 @@ class Tapper:
             await self.check_proxy(http_client=http_client, proxy=proxy)
 
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
-        token, whitelisted, banned, balance, streak, last_login, referrer, tribe = await self.login(http_client=http_client, init_data=init_data)
+        token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks = await self.login(http_client=http_client, init_data=init_data)
         
         logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💰 Balance: <yellow>{balance}</yellow>")
         http_client.headers["Authorization"] = f"Bearer {token}"
@@ -463,6 +514,9 @@ class Tapper:
         if settings.AUTO_TAP:
             logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <green>AutoTapper...</green>")
             asyncio.create_task(self.clicker(http_client=http_client))
+
+        if settings.AUTO_TASKS:
+            await self.complete_tasks(tasks)
 
         if squad_name:
             if not tribe:
