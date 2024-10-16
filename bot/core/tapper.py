@@ -506,7 +506,7 @@ class Tapper:
 
         if banned:
             logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😨 You are <red>banned...</red>")
-            return
+            await asyncio.sleep(999999999999)
 
         if self.user_data["referred"] == "gold" and not self.user_data["acknowledged"]:
             self.user_data["acknowledged"] = True
