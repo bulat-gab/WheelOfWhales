@@ -392,7 +392,7 @@ class Tapper:
 
         for task in methods.keys():
             if task not in tasks or not tasks[task]:
-                await methods[task](task)
+                await methods[task](task, http_client, proxy)
 
     async def verify(self, task, http_client, proxy): 
         try:
@@ -516,7 +516,7 @@ class Tapper:
             asyncio.create_task(self.clicker(http_client=http_client))
 
         if settings.AUTO_TASKS:
-            await self.complete_tasks(tasks)
+            await self.complete_tasks(tasks, http_client, proxy)
 
         if squad_name:
             if not tribe:
