@@ -330,9 +330,13 @@ class Tapper:
         last_click_time = self.user_data.get("last_click_time")
         if last_click_time:
             last_click_time = datetime.strptime(last_click_time, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc)
-            if datetime.now(timezone.utc) - last_click_time < timedelta(hours=1):
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting...")
-                return
+            time_since_last_click = datetime.now(timezone.utc) - last_click_time
+
+            if time_since_last_click < timedelta(hours=1):
+                remaining_time = timedelta(hours=1) - time_since_last_click
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting for {remaining_time} until next click...")
+
+                await asyncio.sleep(remaining_time.total_seconds())
 
         clicks = [random.randint(1, 8) for _ in range(1000)]
         random.shuffle(clicks)
