@@ -9,7 +9,7 @@ class Settings(BaseSettings):
    
     AUTO_TAP: bool = True
 
-    SQUAD_NAME: str = 'yummy_squad'
+    SQUAD_NAME: str = ''
 
     REF_ID: str = ''
 
