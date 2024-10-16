@@ -335,20 +335,24 @@ class Tapper:
             if time_since_last_click < timedelta(hours=1):
                 remaining_time = timedelta(hours=1) - time_since_last_click
                 logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting for {remaining_time} until next click...")
-
                 await asyncio.sleep(remaining_time.total_seconds())
 
-        clicks = [random.randint(1, 8) for _ in range(1000)]
-        random.shuffle(clicks)
-
         total_clicks = 0
-        total_time = 0
+        clicks = []
+        
+        while total_clicks < 1000:
+            click_count = random.randint(1, 8)
+            if total_clicks + click_count > 1000:
+                click_count = 1000 - total_clicks
+            clicks.append(click_count)
+            total_clicks += click_count
 
         intervals = [random.uniform(1, 2) for _ in clicks]
         total_time = sum(intervals)
-
+        
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>{total_time / 60:.2f} minutes</light-magenta>")
-
+        
+        total_clicks = 0
         for click_count, interval in zip(clicks, intervals):
             await self.send_clicks(http_client=http_client, click_count=click_count)
             total_clicks += click_count
