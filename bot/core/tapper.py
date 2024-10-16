@@ -387,7 +387,8 @@ class Tapper:
             'FOLLOW_WHALE_EN': self.verify,
             'FOLLOW_WHEEL_OF_WHALES': self.verify,
             'FOLLOW_TON_NEWS': self.verify,
-            'FOLLOW_WHALE_SPORTS': self.verify
+            'FOLLOW_WHALE_SPORTS': self.verify,
+            "SHARE_TO_STORY": self.verify
         }
 
         for task in methods.keys():
@@ -424,10 +425,10 @@ class Tapper:
 
             response = scraper.patch(url, headers=headers, proxies=proxies)
             resp_json = response.json()
-            print(resp_json)
 
             if response.status_code == 200:
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🥰 Task '{task}' <green>completed successfully.</green>")
+                increment_score = resp_json.get('incrementScore', 'unknown')
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🥰 Task '{task}' <green>completed successfully.</green> <light-yellow>+{increment_score}</light-yellow>")
             else:
                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Failed</red> to verify task '{task}', status code: {response.status_code}")
         
