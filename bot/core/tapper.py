@@ -222,7 +222,7 @@ class Tapper:
         try:
             response = await http_client.get(url='https://httpbin.org/ip', timeout=aiohttp.ClientTimeout(5))
             ip = (await response.json()).get('origin')
-            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🛡 Proxy IP: <bright-blue>{ip}</bright-blue>")
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🛡 Proxy IP: <blue>{ip}</blue>")
         except Exception as error:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🛡 Proxy: {proxy} | 🚫 <red>Error:</red> {error}")
 
@@ -435,7 +435,7 @@ class Tapper:
             return
 
         if banned:
-            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😨 You are <dark-red>banned...</dark-red>")
+            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😨 You are <red>banned...</red>")
             return
 
         if self.user_data["referred"] == "gold" and not self.user_data["acknowledged"]:
@@ -457,7 +457,7 @@ class Tapper:
                         if squad_name:
                             join = await self.join_squad(http_client=http_client, proxy=proxy, squad_name=settings.SQUAD_NAME)
                             if join:
-                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ Successfully <bright-green>joined squad</bright-green>: {squad_name}")
+                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ Successfully <green>joined squad</green>: {squad_name}")
                                 self.user_data["squad_name"] = squad_name
                                 self.user_data["in_squad"] = True
                                 self.save_user_data()
