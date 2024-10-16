@@ -97,15 +97,15 @@ class Tapper:
 
         except FileNotFoundError:
             logger.warning(f"🛠 User data file for {self.session_name} <red>not found</red>, creating a new one...")
-            return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False}
+            return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False, "sleep_time": None}
 
         except json.JSONDecodeError:
             logger.warning(f"🛠 User data file for {self.session_name} <red>is empty</red> or corrupted. Creating a new one...")
-            return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False}
+            return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False, "sleep_time": None}
 
         except Exception as error:
             logger.error(f"🚫 An unexpected <red>error</red> occurred while loading user data for {self.session_name}: {error}")
-            return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False}
+            return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False, "sleep_time": None}
 
     def save_user_data(self):
         user_data_file_name = f"data/{self.session_name}.json"
@@ -329,13 +329,15 @@ class Tapper:
 
         while True:
             last_click_time = self.user_data.get("last_click_time")
-            if last_click_time:
-                last_click_time = datetime.strptime(last_click_time, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc)
-                time_since_last_click = datetime.now(timezone.utc) - last_click_time
+            last_sleep_time = self.user_data.get("last_sleep_time")
 
-                if time_since_last_click < timedelta(hours=1):
-                    remaining_time = timedelta(hours=1) - time_since_last_click
-                    
+            if last_sleep_time:
+                last_sleep_time = datetime.strptime(last_sleep_time, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc)
+                time_since_last_sleep = datetime.now(timezone.utc) - last_sleep_time
+
+                if time_since_last_sleep < timedelta(seconds=self.user_data.get("sleep_time", 0)):
+                    remaining_time = timedelta(seconds=self.user_data["sleep_time"]) - time_since_last_sleep
+
                     remaining_minutes = remaining_time.seconds // 60
                     remaining_seconds = remaining_time.seconds % 60
 
@@ -354,9 +356,9 @@ class Tapper:
 
             intervals = [random.uniform(1, 2) for _ in clicks]
             total_time = sum(intervals)
-            
+
             logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>{total_time / 60:.2f} minutes</light-magenta>")
-            
+
             total_clicks = 0
             for click_count, interval in zip(clicks, intervals):
                 await self.send_clicks(http_client=http_client, click_count=click_count)
@@ -372,10 +374,11 @@ class Tapper:
 
             sleep_time = random.randint(1100, 2000)  # Примерно от 18 до 33 минут
             self.user_data["last_sleep_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+            self.user_data["sleep_time"] = sleep_time
             self.save_user_data()
 
             logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ {total_clicks} clicks sent, <light-blue>sleeping for {sleep_time // 60} minutes.</light-blue>")
-            
+
             await asyncio.sleep(sleep_time)
 
     async def get_squad_info(self, http_client, squad_name):
