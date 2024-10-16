@@ -423,6 +423,8 @@ class Tapper:
             } if proxy else None
 
             response = scraper.patch(url, headers=headers, proxies=proxies)
+            resp_json = response.json()
+            print(resp_json)
 
             if response.status_code == 200:
                 logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🥰 Task '{task}' <green>completed successfully.</green>")
