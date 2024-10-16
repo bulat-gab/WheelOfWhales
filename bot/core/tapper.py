@@ -55,7 +55,7 @@ class Tapper:
             with open(user_agents_file_name, 'w') as user_agents:
                 json.dump(self.session_ug_dict, user_agents, indent=4)
 
-            logger.success(f"<light-yellow>{self.session_name}</light-yellow> | User agent saved successfully")
+            logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ⚡️ User agent saved <green>successfully</green>")
 
             return user_agent_str
 
@@ -69,10 +69,10 @@ class Tapper:
                     return session_data
 
         except FileNotFoundError:
-            logger.warning("User agents file not found, creating...")
+            logger.warning("✨ User agents file <red>not found</red>, creating...")
 
         except json.JSONDecodeError:
-            logger.warning("User agents file is empty or corrupted.")
+            logger.warning("😨 User agents file is <red>empty</red> or corrupted.")
 
         return []
 
@@ -96,15 +96,15 @@ class Tapper:
                 return json.load(user_data_file)
 
         except FileNotFoundError:
-            logger.warning(f"User data file for {self.session_name} not found, creating a new one...")
+            logger.warning(f"🛠 User data file for {self.session_name} <red>not found</red>, creating a new one...")
             return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False}
 
         except json.JSONDecodeError:
-            logger.warning(f"User data file for {self.session_name} is empty or corrupted. Creating a new one...")
+            logger.warning(f"🛠 User data file for {self.session_name} <red>is empty</red> or corrupted. Creating a new one...")
             return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False}
 
         except Exception as error:
-            logger.error(f"An unexpected error occurred while loading user data for {self.session_name}: {error}")
+            logger.error(f"🚫 An unexpected <red>error</red> occurred while loading user data for {self.session_name}: {error}")
             return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False}
 
     def save_user_data(self):
@@ -155,9 +155,9 @@ class Tapper:
                         if ref_param:
                             await self.tg_client.send_message("WheelOfWhalesBot", f"/start {ref_param}")
                             if not ref_param.endswith("pub"):
-                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | Referred by a <yellow>gold</yellow> ticket.")
+                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ⭐️ Referred by a <yellow>gold</yellow> ticket.")
                             else:
-                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | Referred by a regular referral.")
+                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🖥 Referred by a <light-blue>regular</light-blue> referral.")
 
                 except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
                     raise InvalidSession(self.session_name)
@@ -169,8 +169,8 @@ class Tapper:
                 except FloodWait as fl:
                     fls = fl.value
 
-                    logger.warning(f"{self.session_name} | FloodWait {fl}")
-                    logger.info(f"{self.session_name} | Sleep {fls}s")
+                    logger.warning(f"{self.session_name} | 😞 FloodWait <red>{fl}</red>")
+                    logger.info(f"{self.session_name} | 😴 Sleep <light-cyan>{fls}s</light-cyan>")
 
                     await asyncio.sleep(fls + 3)
 
@@ -201,7 +201,7 @@ class Tapper:
                     final_name = name_modified + random_letters
                     status = await self.tg_client.set_username(final_name)
                     if status:
-                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Set username {final_name}")
+                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💾 Set username <cyan>@{final_name}</cyan>")
                         break
                     else:
                         continue
@@ -215,16 +215,16 @@ class Tapper:
             raise error
 
         except Exception as error:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Unknown error during Authorization: {error}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 Unknown <red>error</red> during Authorization: {error}")
             await asyncio.sleep(3)
 
     async def check_proxy(self, http_client: aiohttp.ClientSession, proxy: Proxy) -> None:
         try:
             response = await http_client.get(url='https://httpbin.org/ip', timeout=aiohttp.ClientTimeout(5))
             ip = (await response.json()).get('origin')
-            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Proxy IP: {ip}")
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🛡 Proxy IP: <bright-blue>{ip}</bright-blue>")
         except Exception as error:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Proxy: {proxy} | Error: {error}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🛡 Proxy: {proxy} | 🚫 <red>Error:</red> {error}")
 
     async def login(self, http_client: aiohttp.ClientSession, init_data):
         params = dict(item.split('=') for item in init_data.split('&'))
@@ -289,17 +289,17 @@ class Tapper:
             else:
                 try:
                     error_data = response.json()
-                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Error when claiming the daily bonus: {error_data}")
+                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Error</red> when claiming the daily bonus: {error_data}")
                 except json.JSONDecodeError:
-                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Failed to decode error response: {response.text}")
+                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 💀 Failed to decode error response: {response.text}")
                 
                 if response.status_code == 500:
                     return False
         
         except cloudscraper.exceptions.CloudflareChallengeError as e:
-            logger.error(f"{self.session_name} | Cloudflare challenge error occurred: {e}")
+            logger.error(f"{self.session_name} | 🚫 Cloudflare challenge <red>error</red> occurred: {e}")
         except Exception as e:
-            logger.error(f"{self.session_name} | Unexpected error: {str(e)}")
+            logger.error(f"{self.session_name} | 🤷‍♂️ Unexpected <red>error</red>: {str(e)}")
 
     async def send_clicks(self, http_client: aiohttp.ClientSession, click_count: int):
         clicks = {"clicks": click_count}
@@ -311,27 +311,27 @@ class Tapper:
                 if response.status == 200:
                     pass
                 else:
-                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Failed with status: {response.status}")
+                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Failed</red> with status: {response.status}")
                     try:
                         error_body = await response.text()
-                        logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Response body: {error_body}")
+                        logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Response body: {error_body}")
                     except Exception as e:
-                        logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Failed to read response body: {e}")
+                        logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Failed</red> to read response body: {e}")
         except aiohttp.ClientError as e:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Client error occurred: {e}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 Client <red>error</red> occurred: {e}")
         except asyncio.TimeoutError:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Request timed out.")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 Request timed out.")
         except Exception as e:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Unexpected error: {str(e)}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🤷‍♂️ Unexpected <red>error</red>: {str(e)}")
 
     async def clicker(self, http_client: aiohttp.ClientSession):
-        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | AutoTapper started!")
+        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ AutoTapper <light-green>started!</light-green>")
 
         last_click_time = self.user_data.get("last_click_time")
         if last_click_time:
             last_click_time = datetime.strptime(last_click_time, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc)
             if datetime.now(timezone.utc) - last_click_time < timedelta(hours=1):
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sleep time not yet reached, waiting...")
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting...")
                 return
 
         clicks = [random.randint(1, 8) for _ in range(1000)]
@@ -343,7 +343,7 @@ class Tapper:
         intervals = [random.uniform(1, 2) for _ in clicks]
         total_time = sum(intervals)
 
-        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | Estimated clicking time: {total_time / 60:.2f} minutes")
+        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>{total_time / 60:.2f} minutes</light-magenta>")
 
         for click_count, interval in zip(clicks, intervals):
             await self.send_clicks(http_client=http_client, click_count=click_count)
@@ -361,7 +361,7 @@ class Tapper:
         self.user_data["last_sleep_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
         self.save_user_data()
 
-        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | {total_clicks} clicks sent, sleeping for {sleep_time // 60} minutes.")
+        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ {total_clicks} clicks sent, <light-blue>sleeping for {sleep_time // 60} minutes.</light-blue>")
         
         await asyncio.sleep(sleep_time)
 
@@ -372,7 +372,7 @@ class Tapper:
             response_json = await response.json()
             return response_json
         except Exception as error:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Error getting squad info for {squad_name}: {error}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Error</red> getting squad info for {squad_name}: {error}")
             return None
 
     async def join_squad(self, squad_name, http_client, proxy):
@@ -410,10 +410,10 @@ class Tapper:
                 response_json = response.json()
                 return response_json
             else:
-                raise Exception(f"Failed to join squad. Status code: {response.status_code}, Message: {response.text}")
+                raise Exception(f"🚫 <red>Failed</red> to join squad. Status code: {response.status_code}, Message: {response.text}")
 
         except Exception as error:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Error joining squad {squad_name}: {error}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Error</red> joining squad {squad_name}: {error}")
             return None
 
     async def run(self, proxy: str | None) -> None:
@@ -427,25 +427,25 @@ class Tapper:
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
         token, whitelisted, banned, balance, streak, last_login, referrer, tribe = await self.login(http_client=http_client, init_data=init_data)
         
-        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Balance: {balance}")
+        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💰 Balance: <yellow>{balance}</yellow>")
         http_client.headers["Authorization"] = f"Bearer {token}"
 
         if not whitelisted:
-            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | You are not whitelisted :(")
+            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😔 You are <magenta>not whitelisted</magenta> :(")
             return
 
         if banned:
-            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | You are banned :(")
+            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😨 You are <dark-red>banned...</dark-red>")
             return
 
         if self.user_data["referred"] == "gold" and not self.user_data["acknowledged"]:
             self.user_data["acknowledged"] = True
             self.save_user_data()
             if referrer:
-                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | Referred By: @{referrer}")
+                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🤗 Referred By: @{referrer}")
 
         if settings.AUTO_TAP:
-            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Starting AutoTapper...")
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <bright-green>AutoTapper...</bright-green>")
             asyncio.create_task(self.clicker(http_client=http_client))
 
         if squad_name:
@@ -457,27 +457,27 @@ class Tapper:
                         if squad_name:
                             join = await self.join_squad(http_client=http_client, proxy=proxy, squad_name=settings.SQUAD_NAME)
                             if join:
-                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | Successfully joined squad: {squad_name}")
+                                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ Successfully <bright-green>joined squad</bright-green>: {squad_name}")
                                 self.user_data["squad_name"] = squad_name
                                 self.user_data["in_squad"] = True
                                 self.save_user_data()
                             else:
-                                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Failed to join squad: {squad_name}")
+                                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😔 <red>Failed</red> to join squad: {squad_name}")
 
         while True:
             try:
                 if last_login is not None:
                     last_login_time = datetime.strptime(last_login, "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=timezone.utc)
                 else:
-                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Last login data is None (please restart the bot)")
+                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 Last login data is <red>None</red> (please try restarting the bot)")
 
                 if datetime.now(timezone.utc) - last_login_time > timedelta(hours=24):
                     bonus = await self.claim_daily_bonus(http_client=http_client, proxy=proxy)
                     if bonus:
                         new_streak = streak + 1
-                        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | Daily bonus successfully claimed! Current streak: {new_streak}")
+                        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 💘 Daily bonus <green>successfully claimed!</green> Current streak: {new_streak}")
 
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Going sleep 8h (This doesn't concern the AutoTapper)")
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😴 Going <cyan>sleep</cyan> 8h (This doesn't concern the AutoTapper)")
 
                 await asyncio.sleep(8 * 3600)
 
@@ -485,11 +485,11 @@ class Tapper:
                 raise error
 
             except Exception as error:
-                logger.error(f"{self.session_name} | Unknown error: {error} (Try restarting the bot..)")
+                logger.error(f"{self.session_name} | 🚫 Unknown <red>error</red>: {error} (Try restarting the bot..)")
                 await asyncio.sleep(3)
 
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:
         await Tapper(tg_client=tg_client).run(proxy=proxy)
     except InvalidSession:
-        logger.error(f"{tg_client.name} | Invalid Session")
+        logger.error(f"{tg_client.name} | 🚫 <red>Invalid</red> Session")
