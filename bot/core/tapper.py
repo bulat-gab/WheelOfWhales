@@ -96,11 +96,11 @@ class Tapper:
                 return json.load(user_data_file)
 
         except FileNotFoundError:
-            logger.warning(f"🛠 User data file for {self.session_name} <red>not found</red>, creating a new one...")
+            logger.warning(f"😳 User data file for {self.session_name} <red>not found</red>, creating a new one...")
             return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False, "sleep_time": None}
 
         except json.JSONDecodeError:
-            logger.warning(f"🛠 User data file for {self.session_name} <red>is empty</red> or corrupted. Creating a new one...")
+            logger.warning(f"😳 User data file for {self.session_name} <red>is empty</red> or corrupted. Creating a new one...")
             return {"referred": None, "last_click_time": None, "last_sleep_time": None, "acknowledged": False, "squad_name": None, "in_squad": False, "sleep_time": None}
 
         except Exception as error:
