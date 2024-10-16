@@ -28,7 +28,7 @@
 |       **API_HASH**        |           Platform data from which to run the Telegram session (default - android)  |
 |       **AUTO_TAP**        |                      Automatic clicking (default - True)                            |
 |      **SQUAD_NAME**       |               User name of the squad channel without the '@' symbol                 |
-|        **REF_ID**         |  Text after 'start=' in your referral link; if not provided, the bot will exit      |
+|        **REF_ID**         |                         Text after 'start=' in your referral link                   |
 |       **AUTO_TASKS**      |                        Automatically performs tasks (default - False)               |
 | **USE_PROXY_FROM_FILE**   |      Whether to use a proxy from the `bot/config/proxies.txt` file (True / False)   |
 
