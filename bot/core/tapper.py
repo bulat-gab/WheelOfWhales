@@ -445,7 +445,7 @@ class Tapper:
                 logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🤗 Referred By: @{referrer}")
 
         if settings.AUTO_TAP:
-            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <bright-green>AutoTapper...</bright-green>")
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <green>AutoTapper...<green>")
             asyncio.create_task(self.clicker(http_client=http_client))
 
         if squad_name:
