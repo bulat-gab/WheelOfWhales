@@ -327,55 +327,56 @@ class Tapper:
     async def clicker(self, http_client: aiohttp.ClientSession):
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ AutoTapper <light-green>started!</light-green>")
 
-        last_click_time = self.user_data.get("last_click_time")
-        if last_click_time:
-            last_click_time = datetime.strptime(last_click_time, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc)
-            time_since_last_click = datetime.now(timezone.utc) - last_click_time
+        while True:
+            last_click_time = self.user_data.get("last_click_time")
+            if last_click_time:
+                last_click_time = datetime.strptime(last_click_time, "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc)
+                time_since_last_click = datetime.now(timezone.utc) - last_click_time
 
-            if time_since_last_click < timedelta(hours=1):
-                remaining_time = timedelta(hours=1) - time_since_last_click
-                
-                remaining_minutes = remaining_time.seconds // 60
-                remaining_seconds = remaining_time.seconds % 60
+                if time_since_last_click < timedelta(hours=1):
+                    remaining_time = timedelta(hours=1) - time_since_last_click
+                    
+                    remaining_minutes = remaining_time.seconds // 60
+                    remaining_seconds = remaining_time.seconds % 60
 
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting for {remaining_minutes} minutes {remaining_seconds} seconds until next click...")
-                await asyncio.sleep(remaining_time.total_seconds())
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting for {remaining_minutes} minutes {remaining_seconds} seconds until next click...")
+                    await asyncio.sleep(remaining_time.total_seconds())
 
-        total_clicks = 0
-        clicks = []
-        
-        while total_clicks < 1000:
-            click_count = random.randint(1, 8)
-            if total_clicks + click_count > 1000:
-                click_count = 1000 - total_clicks
-            clicks.append(click_count)
-            total_clicks += click_count
+            total_clicks = 0
+            clicks = []
+            
+            while total_clicks < 1000:
+                click_count = random.randint(1, 8)
+                if total_clicks + click_count > 1000:
+                    click_count = 1000 - total_clicks
+                clicks.append(click_count)
+                total_clicks += click_count
 
-        intervals = [random.uniform(1, 2) for _ in clicks]
-        total_time = sum(intervals)
-        
-        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>{total_time / 60:.2f} minutes</light-magenta>")
-        
-        total_clicks = 0
-        for click_count, interval in zip(clicks, intervals):
-            await self.send_clicks(http_client=http_client, click_count=click_count)
-            total_clicks += click_count
+            intervals = [random.uniform(1, 2) for _ in clicks]
+            total_time = sum(intervals)
+            
+            logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>{total_time / 60:.2f} minutes</light-magenta>")
+            
+            total_clicks = 0
+            for click_count, interval in zip(clicks, intervals):
+                await self.send_clicks(http_client=http_client, click_count=click_count)
+                total_clicks += click_count
 
-            self.user_data["last_click_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+                self.user_data["last_click_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+                self.save_user_data()
+
+                await asyncio.sleep(interval)
+
+                if total_clicks >= 1000:
+                    break
+
+            sleep_time = random.randint(1100, 2000)  # Примерно от 18 до 33 минут
+            self.user_data["last_sleep_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
             self.save_user_data()
 
-            await asyncio.sleep(interval)
-
-            if total_clicks >= 1000:
-                break
-
-        sleep_time = random.randint(1100, 2000)  # Примерно от 18 до 33 минут
-        self.user_data["last_sleep_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
-        self.save_user_data()
-
-        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ {total_clicks} clicks sent, <light-blue>sleeping for {sleep_time // 60} minutes.</light-blue>")
-        
-        await asyncio.sleep(sleep_time)
+            logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ {total_clicks} clicks sent, <light-blue>sleeping for {sleep_time // 60} minutes.</light-blue>")
+            
+            await asyncio.sleep(sleep_time)
 
     async def get_squad_info(self, http_client, squad_name):
         try:
