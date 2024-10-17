@@ -33,6 +33,8 @@ class Tapper:
         self.user_id = 0
         self.username = None
         self.url = 'https://clicker-api.crashgame247.io'
+        self.ws_id = 1
+        self.ws_task = None
 
         self.session_ug_dict = self.load_user_agents() or []
         self.user_data = self.load_user_data()
@@ -252,8 +254,9 @@ class Tapper:
         referrer = resp_json.get("referrerUsername")
         tribe = resp_json.get("user", {}).get("tribeId")
         tasks = resp_json.get("meta", {}).get("regularTasks")
+        nanoid = resp_json.get("user", {}).get("nanoid")
 
-        return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks)
+        return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid)
 
     async def claim_daily_bonus(self, http_client, proxy):
         url = f"{self.url}/user/bonus/claim"
@@ -325,8 +328,69 @@ class Tapper:
         except Exception as e:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🤷‍♂️ Unexpected <red>error</red>: {str(e)}")
 
-    async def clicker(self, http_client: aiohttp.ClientSession):
+    async def refresh_tokens(self, http_client: aiohttp.ClientSession, init_data):
+        params = dict(item.split('=') for item in init_data.split('&'))
+        user_data = json.loads(unquote(params['user']))
+
+        data = {
+            "dataCheckChain": init_data,
+            "initData": {
+                "query_id": params['query_id'],
+                "user": user_data,
+                "auth_date": params['auth_date'],
+                "hash": params['hash']
+            }
+        }
+
+        async with http_client.post(f"{self.url}/user/sync", json=data) as resp:
+            resp_json = await resp.json()
+
+        token = resp_json.get("token")
+        wsToken = resp_json.get("wsToken")
+        wsSubToken = resp_json.get("wsSubToken")
+        id_for_ws = resp_json.get("user", {}).get("id")
+
+        return token, wsToken, wsSubToken, id_for_ws
+    
+    async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws):
+        while True:
+            try:
+                async with aiohttp.ClientSession() as ws_session:
+                    async with ws_session.ws_connect(ws_url) as websocket:
+                        connect_message = {"connect": {"token": wsToken, "name": "js"}, "id": self.ws_id}
+                        subscribe_message = {"subscribe": {"channel": f"user:{id_for_ws}", "token": wsSubToken, "recover": True, "epoch": "ttBB"}, "id": self.ws_id + 1}
+                        self.ws_id += 2
+
+                        await websocket.send_json(connect_message)
+                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket connect message: {connect_message}")
+
+                        await websocket.send_json(subscribe_message)
+                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket subscribe message: {subscribe_message}")
+                        await asyncio.sleep(25)
+
+                        await websocket.send_str("")
+                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket empty message")
+
+                        async for msg in websocket:
+                            if msg.type == aiohttp.WSMsgType.TEXT:
+                                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Received WebSocket message: {msg.data}")
+                            elif msg.type == aiohttp.WSMsgType.ERROR:
+                                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error message: {msg.data}")
+
+                        await asyncio.sleep(5)
+
+            except Exception as e:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error: {str(e)}")
+                break
+
+    async def clicker(self, http_client: aiohttp.ClientSession, init_data):
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ AutoTapper <light-green>started!</light-green>")
+
+        token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+        http_client.headers.update({'Authorization': f'Bearer {token}'})
+
+        ws_url = "wss://clicker-socket.crashgame247.io/connection/websocket"
+        self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
 
         while True:
             last_click_time = self.user_data.get("last_click_time")
@@ -373,6 +437,10 @@ class Tapper:
                 if total_clicks >= 1000:
                     break
 
+            if self.ws_task:
+                self.ws_task.cancel()
+                await self.ws_task
+
             sleep_time = random.randint(1100, 2000)  # Примерно от 18 до 33 минут
             self.user_data["last_sleep_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
             self.user_data["sleep_time"] = sleep_time
@@ -381,6 +449,11 @@ class Tapper:
             logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ {total_clicks} clicks sent, <light-blue>sleeping for {sleep_time // 60} minutes.</light-blue>")
 
             await asyncio.sleep(sleep_time)
+
+            token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+            http_client.headers.update({'Authorization': f'Bearer {token}'})
+
+            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
 
     async def complete_tasks(self, tasks, http_client, proxy):
         methods = {
@@ -495,7 +568,7 @@ class Tapper:
             await self.check_proxy(http_client=http_client, proxy=proxy)
 
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
-        token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks = await self.login(http_client=http_client, init_data=init_data)
+        token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = await self.login(http_client=http_client, init_data=init_data)
         
         logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💰 Balance: <yellow>{balance}</yellow>")
         http_client.headers["Authorization"] = f"Bearer {token}"
@@ -517,7 +590,7 @@ class Tapper:
 
         if settings.AUTO_TAP:
             logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <green>AutoTapper...</green>")
-            asyncio.create_task(self.clicker(http_client=http_client))
+            asyncio.create_task(self.clicker(http_client=http_client, init_data=init_data))
 
         if settings.AUTO_TASKS:
             await self.complete_tasks(tasks, http_client, proxy)
