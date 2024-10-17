@@ -362,20 +362,14 @@ class Tapper:
                         self.ws_id += 2
 
                         await websocket.send_json(connect_message)
-                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket connect message: {connect_message}")
+                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket connect message")
 
                         await websocket.send_json(subscribe_message)
-                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket subscribe message: {subscribe_message}")
+                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket subscribe message")
                         await asyncio.sleep(25)
 
                         await websocket.send_str("")
                         logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket empty message")
-
-                        async for msg in websocket:
-                            if msg.type == aiohttp.WSMsgType.TEXT:
-                                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Received WebSocket message: {msg.data}")
-                            elif msg.type == aiohttp.WSMsgType.ERROR:
-                                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error message: {msg.data}")
 
                         await asyncio.sleep(5)
 
@@ -410,7 +404,6 @@ class Tapper:
 
                     if self.ws_task:
                         self.ws_task.cancel()
-                        await self.ws_task
 
                     await asyncio.sleep(remaining_time.total_seconds())
 
@@ -449,7 +442,6 @@ class Tapper:
 
             if self.ws_task:
                 self.ws_task.cancel()
-                await self.ws_task
 
             sleep_time = random.randint(1100, 2000)  # Примерно от 18 до 33 минут
             self.user_data["last_sleep_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
