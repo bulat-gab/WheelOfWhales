@@ -460,7 +460,13 @@ class Tapper:
             'FOLLOW_WHEEL_OF_WHALES': self.verify,
             'FOLLOW_TON_NEWS': self.verify,
             'FOLLOW_WHALE_SPORTS': self.verify,
-            "SHARE_TO_STORY": self.verify
+            'SHARE_TO_STORY': self.verify,
+            'FOLLOW_WHALE_DISCORD': self.verify,
+            'FOLLOW_WHALE_YT': self.verify,
+            'FOLLOW_WHALE_MEMES': self.verify,
+            'FOLLOW_WHALE_INST': self.verify,
+            'FOLLOW_WHALE_TIKTOK': self.verify,
+            'FOLLOW_WHALE_X': self.verify
         }
 
         for task in methods.keys():
