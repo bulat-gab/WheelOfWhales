@@ -407,7 +407,17 @@ class Tapper:
                     remaining_seconds = remaining_time.seconds % 60
 
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Sleep time <cyan>not yet reached</cyan>, waiting for {remaining_minutes} minutes {remaining_seconds} seconds until next click...")
+
+                    if self.ws_task:
+                        self.ws_task.cancel()
+                        await self.ws_task
+
                     await asyncio.sleep(remaining_time.total_seconds())
+
+                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+                    http_client.headers.update({'Authorization': f'Bearer {token}'})
+
+                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
 
             total_clicks = 0
             clicks = []
