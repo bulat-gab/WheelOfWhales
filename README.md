@@ -19,6 +19,7 @@
 |                Automatic joining to squad                |     ✅     |
 |                       AutoTapper                         |     ✅     |
 |                       Auto Tasks                         |     ✅     |
+|                       WebSockets                         |     ✅     |
 |              Support for pyrogram .session               |     ✅     |
 
 ## [Settings](https://github.com/yummy1gay/WheelOfWhales/blob/main/.env-example/)
@@ -30,6 +31,7 @@
 |      **SQUAD_NAME**       |               User name of the squad channel without the '@' symbol                 |
 |        **REF_ID**         |                         Text after 'start=' in your referral link                   |
 |       **AUTO_TASKS**      |                        Automatically performs tasks (default - False)               |
+|       **NIGHT_MODE**      |               Pauses operations from 22:00 to 06:00 UTC (default - False)           |
 | **USE_PROXY_FROM_FILE**   |      Whether to use a proxy from the `bot/config/proxies.txt` file (True / False)   |
 
 ## Quick Start 📚
