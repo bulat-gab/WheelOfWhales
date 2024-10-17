@@ -362,14 +362,11 @@ class Tapper:
                         self.ws_id += 2
 
                         await websocket.send_json(connect_message)
-                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket connect message")
 
                         await websocket.send_json(subscribe_message)
-                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket subscribe message")
                         await asyncio.sleep(25)
 
                         await websocket.send_str("")
-                        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sent WebSocket empty message")
 
                         await asyncio.sleep(5)
 
@@ -571,7 +568,7 @@ class Tapper:
 
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
         token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = await self.login(http_client=http_client, init_data=init_data)
-        
+
         logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💰 Balance: <yellow>{balance}</yellow>")
         http_client.headers["Authorization"] = f"Bearer {token}"
 
@@ -589,6 +586,23 @@ class Tapper:
             self.save_user_data()
             if referrer:
                 logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🤗 Referred By: @{referrer}")
+
+        if settings.NIGHT_MODE:
+            current_time = datetime.now(timezone.utc).time()
+            night_start = datetime.strptime("22:00", "%H:%M").time()
+            night_end = datetime.strptime("06:00", "%H:%M").time()
+
+            if night_start <= current_time or current_time < night_end:
+                now = datetime.now(timezone.utc)
+                if current_time >= night_start:
+                    next_morning = now + timedelta(days=1)
+                    next_morning = next_morning.replace(hour=6, minute=0, second=0, microsecond=0)
+                else:
+                    next_morning = now.replace(hour=6, minute=0, second=0, microsecond=0)
+
+                sleep_duration = (next_morning - now).total_seconds()
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🌙 It's night time! Sleeping until <cyan>06:00 UTC</cyan> (~{int(sleep_duration // 3600)} hours)")
+                await asyncio.sleep(sleep_duration)
 
         if settings.AUTO_TAP:
             logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <green>AutoTapper...</green>")

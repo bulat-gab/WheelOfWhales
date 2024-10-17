@@ -15,6 +15,8 @@ class Settings(BaseSettings):
 
     AUTO_TASKS: bool = False
 
+    NIGHT_MODE: bool = False
+
     USE_PROXY_FROM_FILE: bool = False
 
 
