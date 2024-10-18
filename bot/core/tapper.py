@@ -407,7 +407,7 @@ class Tapper:
 
                     await asyncio.sleep(sleep_duration)
 
-                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
                     http_client.headers.update({'Authorization': f'Bearer {token}'})
 
                     self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
@@ -432,7 +432,7 @@ class Tapper:
 
                     await asyncio.sleep(remaining_time.total_seconds())
 
-                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
                     http_client.headers.update({'Authorization': f'Bearer {token}'})
 
                     self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
@@ -477,7 +477,7 @@ class Tapper:
 
             await asyncio.sleep(sleep_time)
 
-            token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+            token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
             http_client.headers.update({'Authorization': f'Bearer {token}'})
 
             self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
