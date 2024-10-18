@@ -328,7 +328,9 @@ class Tapper:
         except Exception as e:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🤷‍♂️ Unexpected <red>error</red>: {str(e)}")
 
-    async def refresh_tokens(self, http_client: aiohttp.ClientSession, init_data):
+    async def refresh_tokens(self, http_client: aiohttp.ClientSession, proxy):
+        init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
+        
         params = dict(item.split('=') for item in init_data.split('&'))
         user_data = json.loads(unquote(params['user']))
 
@@ -374,10 +376,10 @@ class Tapper:
                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error: {str(e)}")
                 break
 
-    async def clicker(self, http_client: aiohttp.ClientSession, init_data):
+    async def clicker(self, http_client: aiohttp.ClientSession, proxy):
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ AutoTapper <light-green>started!</light-green>")
 
-        token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+        token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
         http_client.headers.update({'Authorization': f'Bearer {token}'})
 
         ws_url = "wss://clicker-socket.crashgame247.io/connection/websocket"
@@ -638,7 +640,7 @@ class Tapper:
 
         if settings.AUTO_TAP:
             logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <green>AutoTapper...</green>")
-            asyncio.create_task(self.clicker(http_client=http_client, init_data=init_data))
+            asyncio.create_task(self.clicker(proxy=proxy, http_client=http_client))
 
         if settings.AUTO_TASKS:
             await self.complete_tasks(tasks, http_client, proxy)
