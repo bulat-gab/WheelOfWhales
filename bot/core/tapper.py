@@ -328,9 +328,9 @@ class Tapper:
         except Exception as e:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🤷‍♂️ Unexpected <red>error</red>: {str(e)}")
 
-    async def refresh_tokens(self, http_client: aiohttp.ClientSession, proxy):
+    async def refresh_tokens(self, proxy, http_client: aiohttp.ClientSession):
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
-        
+
         params = dict(item.split('=') for item in init_data.split('&'))
         user_data = json.loads(unquote(params['user']))
 
@@ -376,7 +376,7 @@ class Tapper:
                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error: {str(e)}")
                 break
 
-    async def clicker(self, http_client: aiohttp.ClientSession, proxy):
+    async def clicker(self, proxy, http_client: aiohttp.ClientSession):
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ AutoTapper <light-green>started!</light-green>")
 
         token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
