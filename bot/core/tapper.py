@@ -384,6 +384,32 @@ class Tapper:
         self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
 
         while True:
+            if settings.NIGHT_MODE:
+                current_time = datetime.now(timezone.utc).time()
+                night_start = datetime.strptime("22:00", "%H:%M").time()
+                night_end = datetime.strptime("06:00", "%H:%M").time()
+
+                if night_start <= current_time or current_time < night_end:
+                    now = datetime.now(timezone.utc)
+                    if current_time >= night_start:
+                        next_morning = now + timedelta(days=1)
+                        next_morning = next_morning.replace(hour=6, minute=0, second=0, microsecond=0)
+                    else:
+                        next_morning = now.replace(hour=6, minute=0, second=0, microsecond=0)
+
+                    sleep_duration = (next_morning - now).total_seconds()
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🌙 It's night time! Sleeping until <cyan>06:00 UTC</cyan> (~{int(sleep_duration // 3600)} hours)")
+                    
+                    if self.ws_task:
+                        self.ws_task.cancel()
+
+                    await asyncio.sleep(sleep_duration)
+
+                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(http_client, init_data)
+                    http_client.headers.update({'Authorization': f'Bearer {token}'})
+
+                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
+
             last_click_time = self.user_data.get("last_click_time")
             last_sleep_time = self.user_data.get("last_sleep_time")
 
@@ -411,7 +437,7 @@ class Tapper:
 
             total_clicks = 0
             clicks = []
-            
+
             while total_clicks < 1000:
                 click_count = random.randint(1, 8)
                 if total_clicks + click_count > 1000:
