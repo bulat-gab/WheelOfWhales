@@ -496,7 +496,9 @@ class Tapper:
             'FOLLOW_WHALE_TIKTOK': self.verify,
             'FOLLOW_WHALE_X': self.verify,
             'FOLLOW_WHALE_SOCIALS': self.verify,
-            'FOLLOW_WHALE_KICK': self.verify
+            'FOLLOW_WHALE_KICK': self.verify,
+            'ROOLZ': self.verify,
+            'DOWNLOAD_WALLET': self.verify
         }
 
         for task in methods.keys():
