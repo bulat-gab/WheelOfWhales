@@ -369,7 +369,6 @@ class Tapper:
                 
                 async with aiohttp.ClientSession(connector=proxy_conn) as ws_session:
                     async with ws_session.ws_connect(ws_url) as websocket:
-                        
                         connect_message = {
                             "connect": {"token": wsToken, "name": "js"},
                             "id": self.ws_id
@@ -378,16 +377,37 @@ class Tapper:
 
                         self.ws_id += 1
                         
-                        subscribe_message = {
-                            "subscribe": {
-                                "channel": f"user:{id_for_ws}",
-                                "token": wsSubToken,
-                                "recover": True,
-                                "epoch": "ttBB"
-                            },
-                            "id": self.ws_id
-                        }
-                        await websocket.send_json(subscribe_message)
+                        if self.ws_id == 2:
+                            subscribe_message = {
+                                "subscribe": {
+                                    "channel": f"user:{id_for_ws}",
+                                    "token": wsSubToken
+                                },
+                                "id": self.ws_id
+                            }
+                            await websocket.send_json(subscribe_message)
+
+                            while True:
+                                response = await websocket.receive_json()
+                                
+                                if response.get("id") == self.ws_id:
+                                    recoverable = response["subscribe"]["recoverable"]
+                                    epoch = response["subscribe"]["epoch"]
+                                    offset = response["subscribe"]["offset"]
+                                    break
+
+                        else:
+                            subscribe_message = {
+                                "subscribe": {
+                                    "channel": f"user:{id_for_ws}",
+                                    "token": wsSubToken,
+                                    "recover": recoverable,
+                                    "offset": offset,
+                                    "epoch": epoch
+                                },
+                                "id": self.ws_id
+                            }
+                            await websocket.send_json(subscribe_message)
 
                         self.ws_id += 1
 
