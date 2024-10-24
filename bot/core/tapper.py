@@ -387,6 +387,10 @@ class Tapper:
                             }
                             await websocket.send_json(subscribe_message)
 
+                            recoverable = None
+                            epoch = None
+                            offset = None
+
                             while True:
                                 try:
                                     response = await websocket.receive()
