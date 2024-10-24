@@ -396,7 +396,7 @@ class Tapper:
                         await asyncio.sleep(5)
 
             except Exception as e:
-                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error: {str(e)}")
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)}")
                 break
 
     async def clicker(self, proxy, http_client: aiohttp.ClientSession):
@@ -631,7 +631,15 @@ class Tapper:
             await self.check_proxy(http_client=http_client, proxy=proxy)
 
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
-        token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = await self.login(http_client=http_client, init_data=init_data)
+
+        while True:
+            token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = await self.login(http_client=http_client, init_data=init_data)
+
+            if all(value is not None for value in [token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid]):
+                break
+            else:
+                logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
+                await asyncio.sleep(30)
 
         logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💰 Balance: <yellow>{balance}</yellow> | ⚡️ Current streak: <cyan>{streak}</cyan>")
         http_client.headers["Authorization"] = f"Bearer {token}"
