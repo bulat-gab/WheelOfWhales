@@ -388,15 +388,23 @@ class Tapper:
                             await websocket.send_json(subscribe_message)
 
                             while True:
-                                response = await websocket.receive_json()
+                                response = await websocket.receive()
                                 
-                                if response.get("id") == self.ws_id:
-                                    recoverable = response["subscribe"]["recoverable"]
-                                    epoch = response["subscribe"]["epoch"]
-                                    offset = response["subscribe"]["offset"]
-                                    break
-                                else:
-                                    pass
+                                logger.info(f"Raw response: {response.data}")
+
+                                try:
+                                    json_response = await websocket.receive_json()
+                                    
+                                    if json_response.get("id") == self.ws_id:
+                                        recoverable = json_response["subscribe"]["recoverable"]
+                                        epoch = json_response["subscribe"]["epoch"]
+                                        offset = json_response["subscribe"]["offset"]
+                                        break
+                                    else:
+                                        logger.error(f"Ignored response with ID: {json_response.get('id')}")
+                                
+                                except Exception as e:
+                                    logger.error(f"Error processing response: {e}")
 
                         else:
                             subscribe_message = {
