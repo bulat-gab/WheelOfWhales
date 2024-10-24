@@ -408,7 +408,7 @@ class Tapper:
                                     elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
                                         break
                                 except Exception as e:
-                                    break
+                                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | {e}")
 
                         else:
                             subscribe_message = {
