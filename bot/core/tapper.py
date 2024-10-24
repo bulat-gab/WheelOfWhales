@@ -242,21 +242,33 @@ class Tapper:
             }
         }
 
-        resp = await http_client.post(f"{self.url}/user/sync", json=data)
-        resp_json = await resp.json()
+        try:
+            resp = await http_client.post(f"{self.url}/user/sync", json=data)
+            
+            resp.raise_for_status()
 
-        token = resp_json.get("token")
-        whitelisted = resp_json.get("user", {}).get("whitelisted")
-        banned = resp_json.get("user", {}).get("isBanned")
-        balance = resp_json.get("balance", {}).get("amount")
-        streak = resp_json.get("meta", {}).get("dailyLoginStreak")
-        last_login = resp_json.get("meta", {}).get("lastFirstDailyLoginAt")
-        referrer = resp_json.get("referrerUsername")
-        tribe = resp_json.get("user", {}).get("tribeId")
-        tasks = resp_json.get("meta", {}).get("regularTasks")
-        nanoid = resp_json.get("user", {}).get("nanoid")
+            resp_json = await resp.json()
 
-        return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid)
+            token = resp_json.get("token")
+            whitelisted = resp_json.get("user", {}).get("whitelisted")
+            banned = resp_json.get("user", {}).get("isBanned")
+            balance = resp_json.get("balance", {}).get("amount")
+            streak = resp_json.get("meta", {}).get("dailyLoginStreak")
+            last_login = resp_json.get("meta", {}).get("lastFirstDailyLoginAt")
+            referrer = resp_json.get("referrerUsername")
+            tribe = resp_json.get("user", {}).get("tribeId")
+            tasks = resp_json.get("meta", {}).get("regularTasks")
+            nanoid = resp_json.get("user", {}).get("nanoid")
+
+            return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid)
+
+        except aiohttp.ContentTypeError as e:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 ContentTypeError: {str(e)}. Response: {await resp.text()}")
+            return None
+
+        except Exception as e:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 An unexpected <red>error</red> occurred: {str(e)}")
+            return None
 
     async def claim_daily_bonus(self, http_client, proxy):
         url = f"{self.url}/user/bonus/claim"
