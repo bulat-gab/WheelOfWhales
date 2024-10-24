@@ -353,7 +353,7 @@ class Tapper:
                 resp_json = await resp.json()
             else:
                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Failed</red> with status: {resp.status} (refresh_tokens)")
-                return None, None, None, None
+                return None
 
         token = resp_json.get("token")
         wsToken = resp_json.get("wsToken")
@@ -402,8 +402,16 @@ class Tapper:
     async def clicker(self, proxy, http_client: aiohttp.ClientSession):
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ AutoTapper <light-green>started!</light-green>")
 
-        token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
-        http_client.headers.update({'Authorization': f'Bearer {token}'})
+        while True:
+            refresh = await self.refresh_tokens(proxy, http_client)
+            
+            if refresh is not None:
+                token, wsToken, wsSubToken, id_for_ws = refresh
+                http_client.headers.update({'Authorization': f'Bearer {token}'})
+                break
+            else:
+                logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
+                await asyncio.sleep(30)
 
         ws_url = "wss://clicker-socket.crashgame247.io/connection/websocket"
         self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
@@ -430,8 +438,16 @@ class Tapper:
 
                     await asyncio.sleep(sleep_duration)
 
-                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
-                    http_client.headers.update({'Authorization': f'Bearer {token}'})
+                    while True:
+                        refresh = await self.refresh_tokens(proxy, http_client)
+                        
+                        if refresh is not None:
+                            token, wsToken, wsSubToken, id_for_ws = refresh
+                            http_client.headers.update({'Authorization': f'Bearer {token}'})
+                            break
+                        else:
+                            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
+                            await asyncio.sleep(30)
 
                     self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
@@ -455,8 +471,16 @@ class Tapper:
 
                     await asyncio.sleep(remaining_time.total_seconds())
 
-                    token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
-                    http_client.headers.update({'Authorization': f'Bearer {token}'})
+                    while True:
+                        refresh = await self.refresh_tokens(proxy, http_client)
+                        
+                        if refresh is not None:
+                            token, wsToken, wsSubToken, id_for_ws = refresh
+                            http_client.headers.update({'Authorization': f'Bearer {token}'})
+                            break
+                        else:
+                            logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
+                            await asyncio.sleep(30)
 
                     self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
@@ -500,8 +524,16 @@ class Tapper:
 
             await asyncio.sleep(sleep_time)
 
-            token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
-            http_client.headers.update({'Authorization': f'Bearer {token}'})
+            while True:
+                refresh = await self.refresh_tokens(proxy, http_client)
+                
+                if refresh is not None:
+                    token, wsToken, wsSubToken, id_for_ws = refresh
+                    http_client.headers.update({'Authorization': f'Bearer {token}'})
+                    break
+                else:
+                    logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
+                    await asyncio.sleep(30)
 
             self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
