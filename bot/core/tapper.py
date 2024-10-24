@@ -495,7 +495,7 @@ class Tapper:
             token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
             http_client.headers.update({'Authorization': f'Bearer {token}'})
 
-            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
+            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy=None))
 
     async def complete_tasks(self, tasks, http_client, proxy):
         methods = {
