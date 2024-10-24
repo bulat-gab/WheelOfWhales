@@ -387,14 +387,11 @@ class Tapper:
                             }
                             await websocket.send_json(subscribe_message)
 
-                            recoverable = None
-                            epoch = None
-                            offset = None
+                            recoverable = epoch = offset = None
 
                             while True:
                                 try:
                                     response = await websocket.receive()
-                                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | {response}")
                                     if response.type == aiohttp.WSMsgType.TEXT:
                                         data = response.data.strip().splitlines()
                                         for line in data:
@@ -402,9 +399,9 @@ class Tapper:
                                                 json_response = json.loads(line)
 
                                                 if json_response.get("id") == 2:
-                                                    recoverable = json_response["subscribe"]["recoverable"]
-                                                    epoch = json_response["subscribe"]["epoch"]
-                                                    offset = json_response["subscribe"]["offset"]
+                                                    recoverable = json_response["subscribe"].get("recoverable")
+                                                    epoch = json_response["subscribe"].get("epoch")
+                                                    offset = json_response["subscribe"].get("offset")
                                                     break
                                                 else:
                                                     pass
@@ -419,13 +416,18 @@ class Tapper:
                             subscribe_message = {
                                 "subscribe": {
                                     "channel": f"user:{id_for_ws}",
-                                    "token": wsSubToken,
-                                    "recover": recoverable,
-                                    "offset": offset,
-                                    "epoch": epoch
+                                    "token": wsSubToken
                                 },
                                 "id": self.ws_id
                             }
+
+                            if recoverable is not None:
+                                subscribe_message["subscribe"]["recover"] = recoverable
+                            if epoch is not None:
+                                subscribe_message["subscribe"]["epoch"] = epoch
+                            if offset is not None:
+                                subscribe_message["subscribe"]["offset"] = offset
+
                             await websocket.send_json(subscribe_message)
 
                         self.ws_id += 1
