@@ -349,7 +349,11 @@ class Tapper:
         }
 
         async with http_client.post(f"{self.url}/user/sync", json=data) as resp:
-            resp_json = await resp.json()
+            if resp.status == 200:
+                resp_json = await resp.json()
+            else:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Failed</red> with status: {resp.status} (refresh_tokens)")
+                return None, None, None, None
 
         token = resp_json.get("token")
         wsToken = resp_json.get("wsToken")
