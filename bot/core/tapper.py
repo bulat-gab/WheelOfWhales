@@ -390,7 +390,11 @@ class Tapper:
                             while True:
                                 response = await websocket.receive()
                                 
-                                logger.info(f"Raw response: {response.data}")
+                                print(f"Raw response: {response.data}")
+
+                                if response.data is None:
+                                    print("Received None, skipping this response.")
+                                    continue
 
                                 try:
                                     json_response = await websocket.receive_json()
@@ -401,10 +405,13 @@ class Tapper:
                                         offset = json_response["subscribe"]["offset"]
                                         break
                                     else:
-                                        logger.error(f"Ignored response with ID: {json_response.get('id')}")
+                                        print(f"Ignored response with ID: {json_response.get('id')}")
+                                
+                                except aiohttp.ContentTypeError:
+                                    print("Received non-JSON response.")
                                 
                                 except Exception as e:
-                                    logger.error(f"Error processing response: {e}")
+                                    print(f"Error processing response: {e}")
 
                         else:
                             subscribe_message = {
