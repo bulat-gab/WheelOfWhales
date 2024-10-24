@@ -354,26 +354,41 @@ class Tapper:
 
         return token, wsToken, wsSubToken, id_for_ws
     
-    async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws):
+    async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws, session_name, proxy):
         while True:
             try:
-                async with aiohttp.ClientSession() as ws_session:
+                proxy_conn = ProxyConnector.from_url(proxy) if proxy else None
+                
+                async with aiohttp.ClientSession(connector=proxy_conn) as ws_session:
                     async with ws_session.ws_connect(ws_url) as websocket:
-                        connect_message = {"connect": {"token": wsToken, "name": "js"}, "id": self.ws_id}
-                        subscribe_message = {"subscribe": {"channel": f"user:{id_for_ws}", "token": wsSubToken, "recover": True, "epoch": "ttBB"}, "id": self.ws_id + 1}
-                        self.ws_id += 2
-
+                        
+                        connect_message = {
+                            "connect": {"token": wsToken, "name": "js"},
+                            "id": self.ws_id
+                        }
                         await websocket.send_json(connect_message)
 
+                        self.ws_id += 1
+                        
+                        subscribe_message = {
+                            "subscribe": {
+                                "channel": f"user:{id_for_ws}",
+                                "token": wsSubToken,
+                                "recover": True,
+                                "epoch": "ttBB"
+                            },
+                            "id": self.ws_id
+                        }
                         await websocket.send_json(subscribe_message)
+
+                        self.ws_id += 1
+
                         await asyncio.sleep(25)
-
                         await websocket.send_str("")
-
                         await asyncio.sleep(5)
 
             except Exception as e:
-                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error: {str(e)}")
+                logger.error(f"<light-yellow>{session_name}</light-yellow> | WebSocket error: {str(e)}")
                 break
 
     async def clicker(self, proxy, http_client: aiohttp.ClientSession):
@@ -383,7 +398,7 @@ class Tapper:
         http_client.headers.update({'Authorization': f'Bearer {token}'})
 
         ws_url = "wss://clicker-socket.crashgame247.io/connection/websocket"
-        self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
+        self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
         while True:
             if settings.NIGHT_MODE:
@@ -410,7 +425,7 @@ class Tapper:
                     token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
                     http_client.headers.update({'Authorization': f'Bearer {token}'})
 
-                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
+                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
             last_click_time = self.user_data.get("last_click_time")
             last_sleep_time = self.user_data.get("last_sleep_time")
@@ -435,7 +450,7 @@ class Tapper:
                     token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
                     http_client.headers.update({'Authorization': f'Bearer {token}'})
 
-                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
+                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
             total_clicks = 0
             clicks = []
@@ -480,7 +495,7 @@ class Tapper:
             token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
             http_client.headers.update({'Authorization': f'Bearer {token}'})
 
-            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws))
+            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
     async def complete_tasks(self, tasks, http_client, proxy):
         methods = {
@@ -498,7 +513,11 @@ class Tapper:
             'FOLLOW_WHALE_SOCIALS': self.verify,
             'FOLLOW_WHALE_KICK': self.verify,
             'ROOLZ': self.verify,
-            'DOWNLOAD_WALLET': self.verify
+            'DOWNLOAD_WALLET': self.verify,
+            'LIKE_RETWEET': self.verify,
+            'BITS': self.verify,
+            'DEPOSIT_SUPERWHALE': self.verify,
+            'BOOM': self.verify
         }
 
         for task in methods.keys():
