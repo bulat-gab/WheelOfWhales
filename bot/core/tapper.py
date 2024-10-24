@@ -390,20 +390,21 @@ class Tapper:
                             while True:
                                 try:
                                     response = await websocket.receive()
-                                    data = response.data.strip().splitlines()
-                                    for line in data:
-                                        try:
-                                            json_response = json.loads(line)
+                                    if response.data is not None:
+                                        data = response.data.strip().splitlines()
+                                        for line in data:
+                                            try:
+                                                json_response = json.loads(line)
 
-                                            if json_response.get("id") == 2:
-                                                recoverable = json_response["subscribe"]["recoverable"]
-                                                epoch = json_response["subscribe"]["epoch"]
-                                                offset = json_response["subscribe"]["offset"]
-                                                break
-                                            else:
+                                                if json_response.get("id") == 2:
+                                                    recoverable = json_response["subscribe"]["recoverable"]
+                                                    epoch = json_response["subscribe"]["epoch"]
+                                                    offset = json_response["subscribe"]["offset"]
+                                                    break
+                                                else:
+                                                    pass
+                                            except json.JSONDecodeError:
                                                 pass
-                                        except json.JSONDecodeError:
-                                            pass
                                 except Exception as e:
                                     logger.error(f"<light-yellow>{self.session_name}</light-yellow> | {e}")
 
