@@ -385,33 +385,22 @@ class Tapper:
                                 },
                                 "id": self.ws_id
                             }
+                            logger.debug(f"Sending subscribe message (ID: {self.ws_id}): {subscribe_message}")
                             await websocket.send_json(subscribe_message)
 
                             while True:
-                                response = await websocket.receive()
+                                response = await websocket.receive_json()
+                                logger.debug(f"Received response: {response}")
                                 
-                                print(f"Raw response: {response.data}")
+                                if response.get("id") == self.ws_id:
+                                    recoverable = response["subscribe"]["recoverable"]
+                                    epoch = response["subscribe"]["epoch"]
+                                    offset = response["subscribe"]["offset"]
 
-                                if response.data is None:
-                                    print("Received None, skipping this response.")
-                                    continue
-
-                                try:
-                                    json_response = await websocket.receive_json()
-                                    
-                                    if json_response.get("id") == self.ws_id:
-                                        recoverable = json_response["subscribe"]["recoverable"]
-                                        epoch = json_response["subscribe"]["epoch"]
-                                        offset = json_response["subscribe"]["offset"]
-                                        break
-                                    else:
-                                        print(f"Ignored response with ID: {json_response.get('id')}")
-                                
-                                except aiohttp.ContentTypeError:
-                                    print("Received non-JSON response.")
-                                
-                                except Exception as e:
-                                    print(f"Error processing response: {e}")
+                                    logger.debug(f"Extracted - recoverable: {recoverable}, epoch: {epoch}, offset: {offset}")
+                                    break
+                                else:
+                                    logger.debug(f"Ignored response with ID: {response.get('id')}")
 
                         else:
                             subscribe_message = {
@@ -424,11 +413,13 @@ class Tapper:
                                 },
                                 "id": self.ws_id
                             }
+                            logger.debug(f"Sending subscribe message (ID: {self.ws_id}): {subscribe_message}")
                             await websocket.send_json(subscribe_message)
 
                         self.ws_id += 1
 
                         await asyncio.sleep(25)
+                        await websocket.send_str("")
                         await asyncio.sleep(5)
 
             except Exception as e:
