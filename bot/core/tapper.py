@@ -394,6 +394,7 @@ class Tapper:
                             while True:
                                 try:
                                     response = await websocket.receive()
+                                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | {response}")
                                     if response.type == aiohttp.WSMsgType.TEXT:
                                         data = response.data.strip().splitlines()
                                         for line in data:
