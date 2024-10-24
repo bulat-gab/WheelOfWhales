@@ -354,7 +354,7 @@ class Tapper:
 
         return token, wsToken, wsSubToken, id_for_ws
     
-    async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws, session_name, proxy):
+    async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws, proxy):
         while True:
             try:
                 proxy_conn = ProxyConnector.from_url(proxy) if proxy else None
@@ -388,7 +388,7 @@ class Tapper:
                         await asyncio.sleep(5)
 
             except Exception as e:
-                logger.error(f"<light-yellow>{session_name}</light-yellow> | WebSocket error: {str(e)}")
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | WebSocket error: {str(e)}")
                 break
 
     async def clicker(self, proxy, http_client: aiohttp.ClientSession):
@@ -495,7 +495,7 @@ class Tapper:
             token, wsToken, wsSubToken, id_for_ws = await self.refresh_tokens(proxy, http_client)
             http_client.headers.update({'Authorization': f'Bearer {token}'})
 
-            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy=None))
+            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
 
     async def complete_tasks(self, tasks, http_client, proxy):
         methods = {
