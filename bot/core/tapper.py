@@ -633,9 +633,10 @@ class Tapper:
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
 
         while True:
-            token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = await self.login(http_client=http_client, init_data=init_data)
+            login = await self.login(http_client=http_client, init_data=init_data)
 
-            if token is not None:
+            if login is not None:
+                token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = login
                 break
             else:
                 logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
