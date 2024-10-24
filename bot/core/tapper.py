@@ -635,7 +635,7 @@ class Tapper:
         while True:
             token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = await self.login(http_client=http_client, init_data=init_data)
 
-            if all(value is not None for value in [token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid]):
+            if token is not None:
                 break
             else:
                 logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
