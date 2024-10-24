@@ -392,24 +392,26 @@ class Tapper:
                                 try:
                                     response = await websocket.receive()
                                     if response.type == aiohttp.WSMsgType.TEXT:
-                                        json_response = json.loads(response.data)
-                                        logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Received response: {json_response}")
+                                        data = response.data.strip().splitlines()
+                                        for line in data:
+                                            try:
+                                                json_response = json.loads(line)
+                                                logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Received response: {json_response}")
 
-                                        if json_response.get("id") == 2:
-                                            recoverable = json_response["subscribe"]["recoverable"]
-                                            epoch = json_response["subscribe"]["epoch"]
-                                            offset = json_response["subscribe"]["offset"]
-
-                                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Extracted - recoverable: {recoverable}, epoch: {epoch}, offset: {offset}")
-                                            break
-                                        else:
-                                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Ignored response with ID: {json_response.get('id')}")
-
+                                                if json_response.get("id") == 2:
+                                                    recoverable = json_response["subscribe"]["recoverable"]
+                                                    epoch = json_response["subscribe"]["epoch"]
+                                                    offset = json_response["subscribe"]["offset"]
+                                                    logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Extracted - recoverable: {recoverable}, epoch: {epoch}, offset: {offset}")
+                                                    break
+                                                else:
+                                                    logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Ignored response with ID: {json_response.get('id')}")
+                                            except json.JSONDecodeError:
+                                                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Ошибка декодирования JSON: {line}")
                                     elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
                                         break
-
-                                except json.JSONDecodeError as json_err:
-                                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | JSON decode error: {json_err}")
+                                except Exception as e:
+                                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Ошибка получения ответа: {str(e)}")
                                     break
 
                         else:
