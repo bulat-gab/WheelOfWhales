@@ -395,6 +395,8 @@ class Tapper:
                                     epoch = response["subscribe"]["epoch"]
                                     offset = response["subscribe"]["offset"]
                                     break
+                                else:
+                                    pass
 
                         else:
                             subscribe_message = {
