@@ -429,7 +429,6 @@ class Tapper:
                         self.ws_id += 1
 
                         await asyncio.sleep(25)
-                        await websocket.send_str("")
                         await asyncio.sleep(5)
 
             except Exception as e:
