@@ -406,7 +406,7 @@ class Tapper:
                                             except json.JSONDecodeError:
                                                 pass
                                     elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
-                                        break
+                                        pass
                                 except Exception as e:
                                     logger.error(f"<light-yellow>{self.session_name}</light-yellow> | {e}")
 
