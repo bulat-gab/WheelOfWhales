@@ -385,7 +385,6 @@ class Tapper:
                                 },
                                 "id": self.ws_id
                             }
-                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Sending subscribe message (ID: {self.ws_id}): {subscribe_message}")
                             await websocket.send_json(subscribe_message)
 
                             while True:
@@ -396,22 +395,19 @@ class Tapper:
                                         for line in data:
                                             try:
                                                 json_response = json.loads(line)
-                                                logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Received response: {json_response}")
 
                                                 if json_response.get("id") == 2:
                                                     recoverable = json_response["subscribe"]["recoverable"]
                                                     epoch = json_response["subscribe"]["epoch"]
                                                     offset = json_response["subscribe"]["offset"]
-                                                    logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Extracted - recoverable: {recoverable}, epoch: {epoch}, offset: {offset}")
                                                     break
                                                 else:
-                                                    logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Ignored response with ID: {json_response.get('id')}")
+                                                    pass
                                             except json.JSONDecodeError:
-                                                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Ошибка декодирования JSON: {line}")
+                                                pass
                                     elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
                                         break
                                 except Exception as e:
-                                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Ошибка получения ответа: {str(e)}")
                                     break
 
                         else:
@@ -425,7 +421,6 @@ class Tapper:
                                 },
                                 "id": self.ws_id
                             }
-                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Sending subscribe message (ID: {self.ws_id}): {subscribe_message}")
                             await websocket.send_json(subscribe_message)
 
                         self.ws_id += 1
@@ -435,7 +430,7 @@ class Tapper:
                         await asyncio.sleep(5)
 
             except Exception as e:
-                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)}")
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)} (Most likely, this error occurred due to issues on the server side. Advice: turn off the script and wait for the server to normalize its operation)")
                 break
 
     async def clicker(self, proxy, http_client: aiohttp.ClientSession):
