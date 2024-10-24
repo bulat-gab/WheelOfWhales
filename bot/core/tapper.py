@@ -327,18 +327,10 @@ class Tapper:
                 if response.status == 200:
                     pass
                 else:
-                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Failed</red> with status: {response.status}")
-                    try:
-                        error_body = await response.text()
-                        logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Response body: {error_body}")
-                    except Exception as e:
-                        logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Failed</red> to read response body: {e}")
-        except aiohttp.ClientError as e:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 Client <red>error</red> occurred: {e}")
-        except asyncio.TimeoutError:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 Request timed out.")
+                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 <red>Failed</red> with status: {response.status} (send_clicks)")
+
         except Exception as e:
-            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🤷‍♂️ Unexpected <red>error</red>: {str(e)}")
+            pass
 
     async def refresh_tokens(self, proxy, http_client: aiohttp.ClientSession):
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
