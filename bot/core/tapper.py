@@ -516,8 +516,7 @@ class Tapper:
             'DOWNLOAD_WALLET': self.verify,
             'LIKE_RETWEET': self.verify,
             'BITS': self.verify,
-            'DEPOSIT_SUPERWHALE': self.verify,
-            'BOOM': self.verify
+            'DEPOSIT_SUPERWHALE': self.verify
         }
 
         for task in methods.keys():
