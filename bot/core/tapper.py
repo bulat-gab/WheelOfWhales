@@ -411,7 +411,7 @@ class Tapper:
                                     json_response = json.loads(response.data)
                                     logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Received response: {json_response}")
 
-                                    if json_response.get("id") == self.ws_id:
+                                    if json_response.get("id") == 2:
                                         recoverable = json_response["subscribe"]["recoverable"]
                                         epoch = json_response["subscribe"]["epoch"]
                                         offset = json_response["subscribe"]["offset"]
