@@ -515,7 +515,7 @@ class Tapper:
             clicks = []
 
             while total_clicks < 1000:
-                click_count = random.randint(1, 20)
+                click_count = random.randint(1, 15)
                 if total_clicks + click_count > 1000:
                     click_count = 1000 - total_clicks
                 clicks.append(click_count)
