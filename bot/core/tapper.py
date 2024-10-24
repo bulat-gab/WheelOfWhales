@@ -390,7 +390,7 @@ class Tapper:
                             while True:
                                 try:
                                     response = await websocket.receive()
-                                    if response.data is not None:
+                                    if response.type == aiohttp.WSMsgType.TEXT:
                                         data = response.data.strip().splitlines()
                                         for line in data:
                                             try:
@@ -405,6 +405,8 @@ class Tapper:
                                                     pass
                                             except json.JSONDecodeError:
                                                 pass
+                                    elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
+                                        pass
                                 except Exception as e:
                                     logger.error(f"<light-yellow>{self.session_name}</light-yellow> | {e}")
 
