@@ -374,53 +374,38 @@ class Tapper:
                             "id": self.ws_id
                         }
                         await websocket.send_json(connect_message)
+                        await websocket.receive()
 
                         self.ws_id += 1
                         
+                        subscribe_message = {
+                            "subscribe": {
+                                "channel": f"user:{id_for_ws}",
+                                "token": wsSubToken
+                            },
+                            "id": self.ws_id
+                        }
+                        
                         if self.ws_id == 2:
-                            subscribe_message = {
-                                "subscribe": {
-                                    "channel": f"user:{id_for_ws}",
-                                    "token": wsSubToken
-                                },
-                                "id": self.ws_id
-                            }
                             await websocket.send_json(subscribe_message)
-
-                            recoverable = epoch = offset = None
-
-                            while True:
-                                try:
-                                    response = await websocket.receive()
-                                    if response.type == aiohttp.WSMsgType.TEXT:
-                                        data = response.data.strip().splitlines()
-                                        for line in data:
-                                            try:
-                                                json_response = json.loads(line)
-
-                                                if json_response.get("id") == 2:
-                                                    recoverable = json_response["subscribe"].get("recoverable")
-                                                    epoch = json_response["subscribe"].get("epoch")
-                                                    offset = json_response["subscribe"].get("offset")
-                                                    break
-                                                else:
-                                                    pass
-                                            except json.JSONDecodeError:
-                                                pass
-                                    elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
+                            
+                            response = await websocket.receive()
+                            if response.type == aiohttp.WSMsgType.TEXT:
+                                data = response.data.strip().splitlines()
+                                for line in data:
+                                    try:
+                                        json_response = json.loads(line)
+                                        if json_response.get("id") == self.ws_id:
+                                            recoverable = json_response["subscribe"].get("recoverable")
+                                            epoch = json_response["subscribe"].get("epoch")
+                                            offset = json_response["subscribe"].get("offset")
+                                            break
+                                    except json.JSONDecodeError:
                                         pass
-                                except Exception as e:
-                                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | {e}")
+                            elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
+                                pass
 
                         else:
-                            subscribe_message = {
-                                "subscribe": {
-                                    "channel": f"user:{id_for_ws}",
-                                    "token": wsSubToken
-                                },
-                                "id": self.ws_id
-                            }
-
                             if recoverable is not None:
                                 subscribe_message["subscribe"]["recover"] = recoverable
                             if epoch is not None:
@@ -429,6 +414,7 @@ class Tapper:
                                 subscribe_message["subscribe"]["offset"] = offset
 
                             await websocket.send_json(subscribe_message)
+                            await websocket.receive()
 
                         self.ws_id += 1
 
@@ -529,13 +515,13 @@ class Tapper:
             clicks = []
 
             while total_clicks < 1000:
-                click_count = random.randint(1, 8)
+                click_count = random.randint(1, 20)
                 if total_clicks + click_count > 1000:
                     click_count = 1000 - total_clicks
                 clicks.append(click_count)
                 total_clicks += click_count
 
-            intervals = [random.uniform(1, 2) for _ in clicks]
+            intervals = [random.uniform(1, 3) for _ in clicks]
             total_time = sum(intervals)
 
             logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🕘 Estimated clicking time: <light-magenta>~{total_time / 60:.2f} minutes</light-magenta>")
