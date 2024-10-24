@@ -388,6 +388,30 @@ class Tapper:
                             logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Sending subscribe message (ID: {self.ws_id}): {subscribe_message}")
                             await websocket.send_json(subscribe_message)
 
+                            while True:
+                                try:
+                                    response = await websocket.receive()
+                                    if response.type == aiohttp.WSMsgType.TEXT:
+                                        json_response = json.loads(response.data)
+                                        logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Received response: {json_response}")
+
+                                        if json_response.get("id") == 2:
+                                            recoverable = json_response["subscribe"]["recoverable"]
+                                            epoch = json_response["subscribe"]["epoch"]
+                                            offset = json_response["subscribe"]["offset"]
+
+                                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Extracted - recoverable: {recoverable}, epoch: {epoch}, offset: {offset}")
+                                            break
+                                        else:
+                                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Ignored response with ID: {json_response.get('id')}")
+
+                                    elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
+                                        break
+
+                                except json.JSONDecodeError as json_err:
+                                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | JSON decode error: {json_err}")
+                                    break
+
                         else:
                             subscribe_message = {
                                 "subscribe": {
@@ -403,30 +427,6 @@ class Tapper:
                             await websocket.send_json(subscribe_message)
 
                         self.ws_id += 1
-
-                        while True:
-                            try:
-                                response = await websocket.receive()
-                                if response.type == aiohttp.WSMsgType.TEXT:
-                                    json_response = json.loads(response.data)
-                                    logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Received response: {json_response}")
-
-                                    if json_response.get("id") == 2:
-                                        recoverable = json_response["subscribe"]["recoverable"]
-                                        epoch = json_response["subscribe"]["epoch"]
-                                        offset = json_response["subscribe"]["offset"]
-
-                                        logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Extracted - recoverable: {recoverable}, epoch: {epoch}, offset: {offset}")
-                                        break
-                                    else:
-                                        logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | Ignored response with ID: {json_response.get('id')}")
-
-                                elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
-                                    break
-
-                            except json.JSONDecodeError as json_err:
-                                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | JSON decode error: {json_err}")
-                                break
 
                         await asyncio.sleep(25)
                         await websocket.send_str("")
