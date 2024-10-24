@@ -637,7 +637,7 @@ class Tapper:
         init_data = await self.get_tg_web_data(proxy=proxy, http_client=http_client)
         token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = await self.login(http_client=http_client, init_data=init_data)
 
-        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💰 Balance: <yellow>{balance}</yellow>")
+        logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💰 Balance: <yellow>{balance}</yellow> | ⚡️ Current streak: <cyan>{streak}</cyan>")
         http_client.headers["Authorization"] = f"Bearer {token}"
 
         if not whitelisted:
