@@ -669,7 +669,8 @@ class Tapper:
             )
 
             if response.status_code == 200:
-                if response.text == 'true':
+                text = await response.text()
+                if text == 'true':
                     return True
 
                 response_json = response.json()
