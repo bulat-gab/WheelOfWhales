@@ -736,13 +736,6 @@ class Tapper:
                 logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🌙 It's night time! Sleeping until <cyan>06:00 UTC</cyan> (~{int(sleep_duration // 3600)} hours)")
                 await asyncio.sleep(sleep_duration)
 
-        if settings.AUTO_TAP:
-            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <green>AutoTapper...</green>")
-            asyncio.create_task(self.clicker(proxy=proxy, http_client=http_client))
-
-        if settings.AUTO_TASKS:
-            await self.complete_tasks(tasks, http_client, proxy)
-
         if squad_name:
             if not tribe:
                 if not self.user_data.get("in_squad", False):
@@ -758,6 +751,13 @@ class Tapper:
                                 self.save_user_data()
                             else:
                                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😔 <red>Failed</red> to join squad: {squad_name}")
+
+        if settings.AUTO_TAP:
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😋 Starting <green>AutoTapper...</green>")
+            asyncio.create_task(self.clicker(proxy=proxy, http_client=http_client))
+
+        if settings.AUTO_TASKS:
+            await self.complete_tasks(tasks, http_client, proxy)
 
         while True:
             try:
