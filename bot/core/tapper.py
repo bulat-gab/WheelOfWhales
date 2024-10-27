@@ -595,7 +595,7 @@ class Tapper:
 
     async def verify(self, task, http_client, proxy): 
         try:
-            sleep = random.randint(1, 30)
+            sleep = random.randint(10, 30)
             logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Waiting {sleep} seconds before verifying task '{task}'")
             
             await asyncio.sleep(sleep)
@@ -690,6 +690,11 @@ class Tapper:
             return None
 
     async def run(self, proxy: str | None) -> None:
+        if settings.USE_RANDOM_DELAY_IN_RUN:
+            random_delay = random.randint(settings.RANDOM_DELAY_IN_RUN[0], settings.RANDOM_DELAY_IN_RUN[1])
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Bot will start in <ly>{random_delay}s</ly>")
+            await asyncio.sleep(random_delay)
+
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
         http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
         squad_name = settings.SQUAD_NAME if settings.SQUAD_NAME != '' else False

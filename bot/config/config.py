@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     AUTO_TASKS: bool = False
 
+    USE_RANDOM_DELAY_IN_RUN: bool = True
+    RANDOM_DELAY_IN_RUN: list[int] = [5, 30]
+
     NIGHT_MODE: bool = False
 
     USE_PROXY_FROM_FILE: bool = False
