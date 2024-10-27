@@ -583,7 +583,10 @@ class Tapper:
             'DOWNLOAD_WALLET': self.verify,
             'LIKE_RETWEET': self.verify,
             'BITS': self.verify,
-            'BOOM': self.verify
+            'BOOM': self.verify,
+            'DEJEN_DOG': self.verify,
+            'DUCKS': self.verify,
+            'TON_KOMBAT': self.verify
         }
 
         for task in methods.keys():
@@ -592,6 +595,11 @@ class Tapper:
 
     async def verify(self, task, http_client, proxy): 
         try:
+            sleep = random.randint(1, 30)
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Waiting {sleep} seconds before verifying task '{task}'")
+            
+            await asyncio.sleep(sleep)
+
             headers = {
                 'Accept': 'application/json, text/plain, */*',
                 'Accept-Encoding': 'gzip, deflate, br, zstd',
@@ -669,8 +677,7 @@ class Tapper:
             )
 
             if response.status_code == 200:
-                text = await response.text()
-                if text == 'true':
+                if response.text == 'true':
                     return True
 
                 response_json = response.json()
