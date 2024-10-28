@@ -365,6 +365,10 @@ class Tapper:
     async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws, proxy):
         while True:
             try:
+                recoverable = None
+                epoch = None
+                offset = None
+
                 proxy_conn = ProxyConnector.from_url(proxy) if proxy else None
                 
                 async with aiohttp.ClientSession(connector=proxy_conn) as ws_session:
@@ -462,6 +466,7 @@ class Tapper:
                     
                     if self.ws_task:
                         self.ws_task.cancel()
+                        self.ws_id = 1
 
                     await asyncio.sleep(sleep_duration)
 
@@ -495,6 +500,7 @@ class Tapper:
 
                     if self.ws_task:
                         self.ws_task.cancel()
+                        self.ws_id = 1
 
                     await asyncio.sleep(remaining_time.total_seconds())
 
@@ -541,6 +547,7 @@ class Tapper:
 
             if self.ws_task:
                 self.ws_task.cancel()
+                self.ws_id = 1
 
             sleep_time = random.randint(1100, 2000)  # Примерно от 18 до 33 минут
             self.user_data["last_sleep_time"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
