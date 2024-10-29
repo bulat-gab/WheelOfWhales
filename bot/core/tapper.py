@@ -35,6 +35,9 @@ class Tapper:
         self.url = 'https://clicker-api.crashgame247.io'
         self.ws_id = 1
         self.ws_task = None
+        self.recoverable = None
+        self.epoch = None
+        self.offset = None
 
         self.session_ug_dict = self.load_user_agents() or []
         self.user_data = self.load_user_data()
@@ -301,7 +304,9 @@ class Tapper:
             response = scraper.patch(url, headers=headers, proxies=proxies)
             
             if response.status_code == 200:
-                return True
+                json_data = response.json()
+                points = json_data.get("incrementBy", 0)
+                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 💘 Daily bonus <green>successfully claimed!</green> (+{points} points)")
             else:
                 try:
                     error_data = response.json()
@@ -361,16 +366,167 @@ class Tapper:
         id_for_ws = resp_json.get("user", {}).get("id")
 
         return token, wsToken, wsSubToken, id_for_ws
-    
-    async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws, proxy):
+
+    async def play_flappy(self, http_client, proxy):
+        try:
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🎮 Started <blue>playing</blue> FlappyWhale...")
+            sleep = random.uniform(40, 90)
+            await asyncio.sleep(sleep)
+
+            headers = {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Authorization': http_client.headers.get('Authorization'),
+                'Origin': 'https://clicker.crashgame247.io',
+                'Referer': 'https://clicker.crashgame247.io/',
+                'Sec-Ch-Ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+                'Sec-Ch-Ua-Mobile': '?1',
+                'Sec-Ch-Ua-Platform': '"Android"',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'User-Agent': http_client.headers.get('User-Agent')
+            }
+
+            proxies = {
+                'http': proxy,
+                'https': proxy,
+            } if proxy else None
+
+            scraper = cloudscraper.create_scraper()
+
+            leaderboard_url = 'https://clicker-api.crashgame247.io/meta/minigame/flappy/leaderboards'
+            scraper.get(leaderboard_url, headers=headers, proxies=proxies)
+
+            score = random.randint(settings.SCORE[0], settings.SCORE[1])
+            payload = {"score": score}
+
+            score_url = 'https://clicker-api.crashgame247.io/meta/minigame/flappy/score'
+            score_response = scraper.patch(score_url, headers=headers, proxies=proxies, json=payload)
+
+            if score_response.status_code == 200:
+                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🐳 <cyan>Finished</cyan> FlappyWhale with a score of {score}!")
+            else:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 <red>Failed</red> to submit FlappyWhale score, status code: {score_response.status_code}")
+
+        except Exception as error:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> in play_flappy: {error}")
+
+    async def play_dino(self, http_client, proxy):
+        try:
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🎮 Started <blue>playing</blue> DinoWhale...")
+            sleep = random.uniform(40, 90)
+            await asyncio.sleep(sleep)
+
+            headers = {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Authorization': http_client.headers.get('Authorization'),
+                'Origin': 'https://clicker.crashgame247.io',
+                'Referer': 'https://clicker.crashgame247.io/',
+                'Sec-Ch-Ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+                'Sec-Ch-Ua-Mobile': '?1',
+                'Sec-Ch-Ua-Platform': '"Android"',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'User-Agent': http_client.headers.get('User-Agent')
+            }
+
+            proxies = {
+                'http': proxy,
+                'https': proxy,
+            } if proxy else None
+
+            scraper = cloudscraper.create_scraper()
+
+            leaderboard_url = 'https://clicker-api.crashgame247.io/meta/minigame/dino/leaderboards'
+            scraper.get(leaderboard_url, headers=headers, proxies=proxies)
+
+            score = random.randint(settings.SCORE[0], settings.SCORE[1])
+            payload = {"score": score}
+
+            score_url = 'https://clicker-api.crashgame247.io/meta/minigame/dino/score'
+            score_response = scraper.patch(score_url, headers=headers, proxies=proxies, json=payload)
+
+            if score_response.status_code == 200:
+                logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🐳 <cyan>Finished</cyan> DinoWhale with a score of {score}!")
+            else:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 <red>Failed</red> to submit DinoWhale score, status code: {score_response.status_code}")
+
+        except Exception as error:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> in play_dino: {error}")
+
+    async def whale_spin(self, http_client, proxy):
+        try:
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🎰 WhaleSpin Started...")
+            headers = {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'Accept-Language': 'ru-RU,ru;q=0.9',
+                'Authorization': http_client.headers.get('Authorization'),
+                'Origin': 'https://clicker.crashgame247.io',
+                'Referer': 'https://clicker.crashgame247.io/',
+                'Sec-Ch-Ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+                'Sec-Ch-Ua-Mobile': '?1',
+                'Sec-Ch-Ua-Platform': '"Android"',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'User-Agent': http_client.headers.get('User-Agent')
+            }
+
+            proxies = {
+                'http': proxy,
+                'https': proxy,
+            } if proxy else None
+
+            scraper = cloudscraper.create_scraper()
+
+            reach_url = 'https://clicker-api.crashgame247.io/meta/wheel/reach'
+            reach_response = scraper.get(reach_url, headers=headers, proxies=proxies)
+
+            if reach_response.status_code == 200:
+                pass
+            elif reach_response.status_code != 400:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 Failed to reach wheel, status code: {reach_response.status_code}")
+
+            await asyncio.sleep(30)
+            ack_url = 'https://clicker-api.crashgame247.io/meta/wheel/ack'
+            ack_response = scraper.put(ack_url, headers=headers, proxies=proxies)
+            ack_json = ack_response.json()
+
+            if ack_response.status_code == 200:
+                opens_game = ack_json.get('opensGame', 'N/A')
+
+                if opens_game == "flappy":
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🐤 WhaleSpin Result: <light-yellow>FlappyWhale</light-yellow>")
+                    await self.play_flappy(http_client, proxy)
+                elif opens_game == "dino":
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🦖 WhaleSpin Result: <green>DinoWhale</green>")
+                    await self.play_dino(http_client, proxy)
+                elif opens_game == "slot":
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🎰 WhaleSpin Result: <cyan>Slot</cyan>")
+                elif opens_game == "death":
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ☠️ WhaleSpin Result: <red>Death</red>")
+                elif opens_game == "whale_free_spin":
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🐋 WhaleSpin Result: <blue>5 Free Spins</blue> awarded in @whale")
+                else:
+                    logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ❓ WhaleSpin Result: Unknown result type '{opens_game}' detected")
+
+            elif ack_response.status_code != 400:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 Failed to acknowledge wheel, status code: {ack_response.status_code}")
+
+        except Exception as error:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> in whale_spin: {error}")
+
+    async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws, proxy, http_client):
         while True:
             try:
-                recoverable = None
-                epoch = None
-                offset = None
-
                 proxy_conn = ProxyConnector.from_url(proxy) if proxy else None
-                
+
                 async with aiohttp.ClientSession(connector=proxy_conn) as ws_session:
                     async with ws_session.ws_connect(ws_url) as websocket:
                         connect_message = {
@@ -381,7 +537,7 @@ class Tapper:
                         await websocket.receive()
 
                         self.ws_id += 1
-                        
+
                         subscribe_message = {
                             "subscribe": {
                                 "channel": f"user:{id_for_ws}",
@@ -392,42 +548,69 @@ class Tapper:
                         
                         if self.ws_id == 2:
                             await websocket.send_json(subscribe_message)
-                            
                             response = await websocket.receive()
+
                             if response.type == aiohttp.WSMsgType.TEXT:
                                 data = response.data.strip().splitlines()
                                 for line in data:
                                     try:
                                         json_response = json.loads(line)
-                                        if json_response.get("id") == self.ws_id:
-                                            recoverable = json_response["subscribe"].get("recoverable")
-                                            epoch = json_response["subscribe"].get("epoch")
-                                            offset = json_response["subscribe"].get("offset")
+                                        if json_response.get("id") == 2:
+                                            self.recoverable = json_response["subscribe"].get("recoverable")
+                                            self.epoch = json_response["subscribe"].get("epoch")
+                                            self.offset = json_response["subscribe"].get("offset")
                                             break
                                     except json.JSONDecodeError:
                                         pass
                             elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
                                 pass
 
-                        else:
-                            if recoverable is not None:
-                                subscribe_message["subscribe"]["recover"] = recoverable
-                            if epoch is not None:
-                                subscribe_message["subscribe"]["epoch"] = epoch
-                            if offset is not None:
-                                subscribe_message["subscribe"]["offset"] = offset
-
+                        if self.ws_id > 2:
+                            subscribe_message = {
+                                "subscribe": {
+                                    "channel": f"user:{id_for_ws}",
+                                    "token": wsSubToken,
+                                    **({"recover": self.recoverable} if self.recoverable is not None else {}),
+                                    **({"epoch": self.epoch} if self.epoch is not None else {}),
+                                    **({"offset": self.offset} if self.offset is not None else {})
+                                },
+                                "id": self.ws_id
+                            }
                             await websocket.send_json(subscribe_message)
                             await websocket.receive()
 
                         self.ws_id += 1
 
-                        await asyncio.sleep(25)
-                        await websocket.send_str("")
-                        await asyncio.sleep(5)
+                        while True:
+                            response = await websocket.receive()
+                            
+                            if response.type == aiohttp.WSMsgType.TEXT:
+                                data = response.data.strip().splitlines()
+                                for line in data:
+                                    try:
+                                        json_response = json.loads(line)
+                                        if "push" in json_response:
+                                            push_data = json_response["push"].get("pub", {}).get("data", {})
+                                            
+                                            if push_data.get("type") == "show_wheel":
+                                                await self.whale_spin(http_client, proxy)
+                                                
+                                                if "offset" in json_response["push"]["pub"]:
+                                                    self.offset = json_response["push"]["pub"]["offset"]
+                                                    
+                                    except json.JSONDecodeError:
+                                        pass
+                            elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
+                                break
+
+                            await asyncio.sleep(25)
+                            if not websocket.closed:
+                                await websocket.send_str("")
+                                await websocket.receive()
+                                await asyncio.sleep(5)
 
             except Exception as e:
-                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)} (Most likely, this error occurred due to issues on the server side. Advice: turn off the script and wait for the server to normalize its operation)")
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)}")
                 break
 
     async def clicker(self, proxy, http_client: aiohttp.ClientSession):
@@ -445,7 +628,7 @@ class Tapper:
                 await asyncio.sleep(30)
 
         ws_url = "wss://clicker-socket.crashgame247.io/connection/websocket"
-        self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
+        self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy, http_client))
 
         while True:
             if settings.NIGHT_MODE:
@@ -481,7 +664,7 @@ class Tapper:
                             logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
                             await asyncio.sleep(30)
 
-                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
+                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy, http_client))
 
             last_click_time = self.user_data.get("last_click_time")
             last_sleep_time = self.user_data.get("last_sleep_time")
@@ -515,7 +698,7 @@ class Tapper:
                             logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
                             await asyncio.sleep(30)
 
-                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
+                    self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy, http_client))
 
             total_clicks = 0
             clicks = []
@@ -569,7 +752,7 @@ class Tapper:
                     logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
                     await asyncio.sleep(30)
 
-            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy))
+            self.ws_task = asyncio.create_task(self.send_websocket_messages(ws_url, wsToken, wsSubToken, id_for_ws, proxy, http_client))
 
     async def complete_tasks(self, tasks, http_client, proxy):
         methods = {
@@ -593,7 +776,8 @@ class Tapper:
             'BOOM': self.verify,
             'DEJEN_DOG': self.verify,
             'DUCKS': self.verify,
-            'TON_KOMBAT': self.verify
+            'TON_KOMBAT': self.verify,
+            'OWLS': self.verify
         }
 
         for task in methods.keys():
@@ -787,10 +971,7 @@ class Tapper:
                     logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 Last login data is <red>None</red> (please try restarting the bot)")
 
                 if datetime.now(timezone.utc) - last_login_time > timedelta(hours=24):
-                    bonus = await self.claim_daily_bonus(http_client=http_client, proxy=proxy)
-                    if bonus:
-                        new_streak = streak + 1
-                        logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 💘 Daily bonus <green>successfully claimed!</green> Current streak: {new_streak}")
+                    await self.claim_daily_bonus(http_client=http_client, proxy=proxy)
 
                 logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 😴 Going <cyan>sleep</cyan> 8h (This doesn't concern the AutoTapper)")
 

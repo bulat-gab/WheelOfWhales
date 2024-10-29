@@ -9,6 +9,8 @@ class Settings(BaseSettings):
    
     AUTO_TAP: bool = True
 
+    SCORE: list[int] = [5, 30]
+
     SQUAD_NAME: str = ''
 
     REF_ID: str = ''

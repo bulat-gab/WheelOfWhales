@@ -18,21 +18,25 @@
 |                      Auto Referral                       |     ✅     |
 |                Automatic joining to squad                |     ✅     |
 |                       AutoTapper                         |     ✅     |
+|              Auto play games (Flappy and Dino)           |     ✅     |
 |                       Auto Tasks                         |     ✅     |
 |                       WebSockets                         |     ✅     |
 |              Support for pyrogram .session               |     ✅     |
 
 ## [Settings](https://github.com/yummy1gay/WheelOfWhales/blob/main/.env-example/)
-|         Settings          |                                     Description                                      |
-|:--------------------------:|:-----------------------------------------------------------------------------------:|
-|        **API_ID**         |           Platform data from which to run the Telegram session (default - android)  |
-|       **API_HASH**        |           Platform data from which to run the Telegram session (default - android)  |
-|       **AUTO_TAP**        |                      Automatic clicking (default - True)                            |
-|      **SQUAD_NAME**       |               User name of the squad channel without the '@' symbol                 |
-|        **REF_ID**         |                         Text after 'start=' in your referral link                   |
-|       **AUTO_TASKS**      |                        Automatically performs tasks (default - False)               |
-|       **NIGHT_MODE**      |               Pauses operations from 22:00 to 06:00 UTC (default - False)           |
-| **USE_PROXY_FROM_FILE**   |      Whether to use a proxy from the `bot/config/proxies.txt` file (True / False)   |
+|         Settings            |                                     Description                                     |
+|:---------------------------:|:-----------------------------------------------------------------------------------:|
+|        **API_ID**           |           Platform data from which to run the Telegram session (default - android)  |
+|       **API_HASH**          |           Platform data from which to run the Telegram session (default - android)  |
+|       **AUTO_TAP**          |                      Automatic clicking (default - True)                            |
+|        **SCORE**            |                 Score per game (default is [5, 30] (That is, 5 to 30))              |
+|      **SQUAD_NAME**         |               @username of the squad channel/chat without the '@' symbol            |
+|        **REF_ID**           |                         Text after 'start=' in your referral link                   |
+|       **AUTO_TASKS**        |                        Automatically performs tasks (default - False)               |
+| **USE_RANDOM_DELAY_IN_RUN** |                             Name saying itself (default - True)                     |
+|   **RANDOM_DELAY_IN_RUN**   |                     Random seconds delay for ^^^ (default is [5, 30])               |
+|       **NIGHT_MODE**        |               Pauses operations from 22:00 to 06:00 UTC (default - False)           |
+| **USE_PROXY_FROM_FILE**     |      Whether to use a proxy from the `bot/config/proxies.txt` file (True / False)   |
 
 ## Quick Start 📚
 
