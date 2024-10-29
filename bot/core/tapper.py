@@ -496,9 +496,9 @@ class Tapper:
             await asyncio.sleep(30)
             ack_url = 'https://clicker-api.crashgame247.io/meta/wheel/ack'
             ack_response = scraper.put(ack_url, headers=headers, proxies=proxies)
-            ack_json = ack_response.json()
 
             if ack_response.status_code == 200:
+                ack_json = ack_response.json()
                 opens_game = ack_json.get('opensGame', 'N/A')
 
                 if opens_game == "flappy":
