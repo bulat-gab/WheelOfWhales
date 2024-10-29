@@ -498,8 +498,13 @@ class Tapper:
             ack_response = scraper.put(ack_url, headers=headers, proxies=proxies)
 
             if ack_response.status_code == 200:
-                ack_json = ack_response.json()
-                opens_game = ack_json.get('opensGame', 'N/A')
+                try:
+                    ack_json = ack_response.json()
+                    opens_game = ack_json.get('opensGame', 'N/A')
+                except ValueError as e:
+                    logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 Failed to parse JSON response: {e}")
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💠 Response content: {ack_response.content}")
+                    opens_game = 'N/A'
 
                 if opens_game == "flappy":
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🐤 WhaleSpin Result: <light-yellow>FlappyWhale</light-yellow>")
