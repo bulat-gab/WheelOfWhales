@@ -499,7 +499,6 @@ class Tapper:
             ack_response = scraper.put(ack_url, headers=headers, proxies=proxies)
 
             if ack_response.status_code == 200:
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Response Content: {ack_response.content}")
                 content_encoding = ack_response.headers.get('Content-Encoding', '')
 
                 if b'"opensGame"' in ack_response.content:
