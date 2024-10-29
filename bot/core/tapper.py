@@ -503,7 +503,7 @@ class Tapper:
                     opens_game = ack_json.get('opensGame', 'N/A')
                 except ValueError as e:
                     logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 Failed to parse JSON response: {e}")
-                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💠 Response content: {ack_response.content}")
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💠 Response content: {ack_response.content}, Responce text: {ack_response.text}, Responce status code: {ack_response.status_code}")
                     opens_game = 'N/A'
 
                 if opens_game == "flappy":
