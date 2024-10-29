@@ -17,6 +17,7 @@ from pyrogram import Client
 from pyrogram.errors import Unauthorized, UserDeactivated, AuthKeyUnregistered, FloodWait
 from pyrogram.raw.functions.messages import RequestWebView
 from datetime import datetime, timedelta, timezone
+import brotli
 
 from bot.config import settings
 from bot.utils import logger
@@ -498,14 +499,18 @@ class Tapper:
             ack_response = scraper.put(ack_url, headers=headers, proxies=proxies)
 
             if ack_response.status_code == 200:
+                content_encoding = ack_response.headers.get('Content-Encoding', '')
+
+                if 'br' in content_encoding:
+                    ack_content = brotli.decompress(ack_response.content).decode('utf-8', errors='replace')
+                else:
+                    ack_content = ack_response.content.decode('utf-8', errors='replace')
+
                 try:
-                    ack_json = ack_response.json()
+                    ack_json = json.loads(ack_content)
                     opens_game = ack_json.get('opensGame', 'N/A')
                 except ValueError as e:
                     logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 Failed to parse JSON response: {e}")
-                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💠 Response: {ack_response} ")
-                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 💠 Content-Type: {ack_response.headers.get('Content-Type')}")
-                    opens_game = 'N/A'
 
                 if opens_game == "flappy":
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🐤 WhaleSpin Result: <light-yellow>FlappyWhale</light-yellow>")
