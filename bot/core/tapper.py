@@ -499,13 +499,20 @@ class Tapper:
             ack_response = scraper.put(ack_url, headers=headers, proxies=proxies)
 
             if ack_response.status_code == 200:
-                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Responce Content: {ack_response.content}")
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Response Content: {ack_response.content}")
                 content_encoding = ack_response.headers.get('Content-Encoding', '')
 
-                if 'br' in content_encoding:
-                    ack_content = brotli.decompress(ack_response.content).decode('utf-8', errors='replace')
-                else:
+                if b'"opensGame"' in ack_response.content:
                     ack_content = ack_response.content.decode('utf-8', errors='replace')
+                else:
+                    if 'br' in content_encoding:
+                        try:
+                            ack_content = brotli.decompress(ack_response.content).decode('utf-8', errors='replace')
+                        except brotli.error as e:
+                            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 Brotli decompression failed: {e}")
+                            ack_content = '{}'
+                    else:
+                        ack_content = ack_response.content.decode('utf-8', errors='replace')
 
                 try:
                     ack_json = json.loads(ack_content)
