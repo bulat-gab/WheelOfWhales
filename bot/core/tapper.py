@@ -795,7 +795,8 @@ class Tapper:
             'DEJEN_DOG': self.verify,
             'DUCKS': self.verify,
             'TON_KOMBAT': self.verify,
-            'OWLS': self.verify
+            'OWLS': self.verify,
+            'CLAYTON': self.verify
         }
 
         for task in methods.keys():
