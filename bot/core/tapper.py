@@ -233,6 +233,10 @@ class Tapper:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🛡 Proxy: {proxy} | 🚫 <red>Error:</red> {error}")
 
     async def login(self, http_client: aiohttp.ClientSession, init_data):
+        if init_data is None:
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 init_data is <red>None</red>")
+            await asyncio.sleep(999999999999)
+
         params = dict(item.split('=') for item in init_data.split('&'))
         user_data = json.loads(unquote(params['user']))
 
