@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     SQUAD_NAME: str = ''
 
-    REF_ID: str = ''
+    REF_ID: str = 'CGYJGk91pub'
 
     AUTO_TASKS: bool = False
 
