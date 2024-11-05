@@ -803,9 +803,17 @@ class Tapper:
             'CLAYTON': self.verify
         }
 
+        codes = {
+            'CODE_VERIFY_redwhale': 'REDWHALE'
+        }
+
         for task in methods.keys():
             if task not in tasks or not tasks[task]:
                 await methods[task](task, http_client, proxy)
+
+        for task, code in codes.items():
+            if task not in tasks or not tasks[task]:
+                await self.verify_code(code, http_client, proxy)
 
     async def verify(self, task, http_client, proxy): 
         try:
@@ -840,7 +848,7 @@ class Tapper:
                 'https': proxy,
             } if proxy else None
 
-            response = scraper.patch(url, headers=headers, proxies=proxies)
+            response = scraper.patch(url, headers=headers, json={}, proxies=proxies)
             resp_json = response.json()
 
             if response.status_code == 200:
@@ -851,6 +859,53 @@ class Tapper:
         
         except Exception as error:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> verifying task '{task}': {error}")
+
+    async def verify_code(self, code, http_client, proxy):
+        try:
+            sleep = random.randint(10, 30)
+            logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Waiting {sleep} seconds before verifying code '{code}'")
+            
+            await asyncio.sleep(sleep)
+            
+            headers = {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'Accept-Language': 'ru-RU,ru;q=0.9',
+                'Authorization': http_client.headers.get('Authorization'),
+                'Origin': 'https://clicker.crashgame247.io',
+                'Priority': 'u=1, i',
+                'Referer': 'https://clicker.crashgame247.io/',
+                'Sec-Ch-Ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+                'Sec-Ch-Ua-Mobile': '?1',
+                'Sec-Ch-Ua-Platform': '"Android"',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'User-Agent': http_client.headers.get('User-Agent'),
+                'Content-Type': 'application/json'
+            }
+
+            url = f'{self.url}/meta/tasks/CODE_VERIFY'
+
+            scraper = cloudscraper.create_scraper()
+
+            proxies = {
+                'http': proxy,
+                'https': proxy,
+            } if proxy else None
+
+            payload = {'code': code}
+            
+            response = scraper.patch(url, headers=headers, json=payload, proxies=proxies)
+            resp_json = response.json()
+
+            if response.status_code == 200:
+                logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🥰 Code '{code}' <green>verified successfully.</green> <light-yellow>+{resp_json.get('incrementScore', 'unknown')}</light-yellow>")
+            else:
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Failed</red> to verify code '{code}', status code: {response.status_code}")
+        
+        except Exception as error:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> verifying code '{code}': {error}")
 
     async def get_squad_info(self, http_client, squad_name):
         try:
