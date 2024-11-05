@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     SCORE: list[int] = [5, 30]
 
-    SQUAD_NAME: str = ''
+    SQUAD_NAME: str = 'yummy_squad'
 
     REF_ID: str = 'CGYJGk91pub'
 

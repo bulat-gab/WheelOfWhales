@@ -267,8 +267,10 @@ class Tapper:
             tribe = resp_json.get("user", {}).get("tribeId")
             tasks = resp_json.get("meta", {}).get("regularTasks")
             nanoid = resp_json.get("user", {}).get("nanoid")
+            flappy_score = resp_json.get("meta", {}).get("flappyScore")
+            dino_score = resp_json.get("meta", {}).get("dinoScore")
 
-            return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid)
+            return (token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid, flappy_score, dino_score)
 
         except aiohttp.ContentTypeError as e:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 ContentTypeError: {str(e)}. Response: {await resp.text()}")
@@ -977,7 +979,13 @@ class Tapper:
             login = await self.login(http_client=http_client, init_data=init_data)
 
             if login is not None:
-                token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid = login
+                token, whitelisted, banned, balance, streak, last_login, referrer, tribe, tasks, nanoid, flappy_score, dino_score = login
+                self.user_data["balance"] = balance
+                self.user_data["streak"] = streak
+                self.user_data["acc_ref_id"] = nanoid
+                self.user_data["flappy_score"] = flappy_score
+                self.user_data["dino_score"] = dino_score
+                self.save_user_data()
                 break
             else:
                 logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ⚠️ Could not retrieve all data, going to sleep 30s before the next attempt...")
@@ -993,7 +1001,12 @@ class Tapper:
 
         if banned:
             logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | 😨 You are <red>banned...</red>")
+            self.user_data["banned"] = True
+            self.save_user_data()
             await asyncio.sleep(999999999999)
+        else:
+            self.user_data["banned"] = False
+            self.save_user_data()
 
         if self.user_data["referred"] == "gold" and not self.user_data["acknowledged"]:
             self.user_data["acknowledged"] = True
