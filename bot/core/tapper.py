@@ -553,7 +553,7 @@ class Tapper:
 
     async def save_result(self, result):
         try:
-            current_time = datetime.datetime.now().strftime("%d.%m.%Y | %H:%M")
+            current_time = datetime.now().strftime("%d.%m.%Y | %H:%M")
             message = f"{current_time} | {self.session_name} | {result}\n"
 
             with open("WhaleSpins.txt", "a", encoding="utf-8") as file:
