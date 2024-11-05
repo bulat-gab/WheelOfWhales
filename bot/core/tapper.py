@@ -527,16 +527,21 @@ class Tapper:
 
                 if opens_game == "flappy":
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🐤 WhaleSpin Result: <light-yellow>FlappyWhale</light-yellow>")
+                    await self.save_result("🐤 FlappyWhale")
                     await self.play_flappy(http_client, proxy)
                 elif opens_game == "dino":
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🦖 WhaleSpin Result: <green>DinoWhale</green>")
+                    await self.save_result("🦖 DinoWhale")
                     await self.play_dino(http_client, proxy)
                 elif opens_game == "slot":
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🎰 WhaleSpin Result: <cyan>Slot</cyan>")
+                    await self.save_result("🎰 Slot")
                 elif opens_game == "death":
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ☠️ WhaleSpin Result: <red>Death</red>")
+                    await self.save_result("☠️ Death")
                 elif opens_game == "whale_free_spin":
                     logger.info(f"<light-yellow>{self.session_name}</light-yellow> | 🐋 WhaleSpin Result: <blue>5 Free Spins</blue> awarded in @whale")
+                    await self.save_result("🐋 5 Free Spins awarded in @whale")
                 else:
                     logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | ❓ WhaleSpin Result: Unknown result type '{opens_game}' detected")
 
@@ -545,6 +550,16 @@ class Tapper:
 
         except Exception as error:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> in whale_spin: {error}")
+
+    async def save_result(self, result):
+        try:
+            current_time = datetime.datetime.now().strftime("%d.%m.%Y | %H:%M")
+            message = f"{current_time} | {self.session_name} | {result}\n"
+
+            with open("WhaleSpins.txt", "a", encoding="utf-8") as file:
+                file.write(message)
+        except Exception as error:
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 😡 <red>Error</red> in save_result: {error}")
 
     async def send_websocket_messages(self, ws_url, wsToken, wsSubToken, id_for_ws, proxy, http_client):
         while True:
