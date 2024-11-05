@@ -414,6 +414,8 @@ class Tapper:
 
             if score_response.status_code == 200:
                 logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🐳 <cyan>Finished</cyan> FlappyWhale with a score of {score}!")
+                self.user_data["flappy_score"] = score
+                self.save_user_data()
             else:
                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 <red>Failed</red> to submit FlappyWhale score, status code: {score_response.status_code}")
 
@@ -460,6 +462,8 @@ class Tapper:
 
             if score_response.status_code == 200:
                 logger.success(f"<light-yellow>{self.session_name}</light-yellow> | 🐳 <cyan>Finished</cyan> DinoWhale with a score of {score}!")
+                self.user_data["dino_score"] = score
+                self.save_user_data()
             else:
                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🔴 <red>Failed</red> to submit DinoWhale score, status code: {score_response.status_code}")
 
