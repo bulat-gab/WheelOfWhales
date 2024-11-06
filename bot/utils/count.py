@@ -2,6 +2,8 @@ import os
 import json
 from bot.utils import logger
 
+os.makedirs('data', exist_ok=True)
+
 total_balance = 0
 banned_count = 0
 

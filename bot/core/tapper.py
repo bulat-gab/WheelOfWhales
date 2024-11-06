@@ -256,6 +256,8 @@ class Tapper:
             resp.raise_for_status()
 
             resp_json = await resp.json()
+            if settings.DEBUG:
+                logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | 🫡 Login Response: {resp_json}")
 
             token = resp_json.get("token")
             whitelisted = resp_json.get("user", {}).get("whitelisted")
@@ -577,6 +579,8 @@ class Tapper:
                             "id": self.ws_id
                         }
                         await websocket.send_json(connect_message)
+                        if settings.DEBUG:
+                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Sent connect message: {connect_message}")
                         await websocket.receive()
 
                         self.ws_id += 1
@@ -591,6 +595,8 @@ class Tapper:
                         
                         if self.ws_id == 2:
                             await websocket.send_json(subscribe_message)
+                            if settings.DEBUG:
+                                logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Sent subscribe message: {subscribe_message}")
                             response = await websocket.receive()
 
                             if response.type == aiohttp.WSMsgType.TEXT:
@@ -620,6 +626,8 @@ class Tapper:
                                 "id": self.ws_id
                             }
                             await websocket.send_json(subscribe_message)
+                            if settings.DEBUG:
+                                logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Sent subscribe message: {subscribe_message}")
                             await websocket.receive()
 
                         self.ws_id += 1
@@ -632,6 +640,8 @@ class Tapper:
                                 for line in data:
                                     try:
                                         json_response = json.loads(line)
+                                        if settings.DEBUG:
+                                            logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Received JSON: {json_response}")
                                         if "push" in json_response:
                                             push_data = json_response["push"].get("pub", {}).get("data", {})
                                             
@@ -640,17 +650,17 @@ class Tapper:
                                                 
                                                 if "offset" in json_response["push"]["pub"]:
                                                     self.offset = json_response["push"]["pub"]["offset"]
+
+                                        if json_response == {}:
+                                            await websocket.send_json({})
+                                            if settings.DEBUG:
+                                                logger.debug(f"<light-yellow>{self.session_name}</light-yellow> | 🌐 Sent ping response")
+                                            break
                                                     
                                     except json.JSONDecodeError:
                                         pass
                             elif response.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
                                 break
-
-                            await asyncio.sleep(25)
-                            if not websocket.closed:
-                                await websocket.send_str("")
-                                await websocket.receive()
-                                await asyncio.sleep(5)
 
             except Exception as e:
                 logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)}")
@@ -747,7 +757,7 @@ class Tapper:
             clicks = []
 
             while total_clicks < 1000:
-                click_count = random.randint(1, 15)
+                click_count = random.randint(1, 2)
                 if total_clicks + click_count > 1000:
                     click_count = 1000 - total_clicks
                 clicks.append(click_count)
