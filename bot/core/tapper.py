@@ -663,8 +663,8 @@ class Tapper:
                                 break
 
             except Exception as e:
-                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)}")
-                break
+                logger.error(f"<light-yellow>{self.session_name}</light-yellow> | 🚫 WebSocket <red>error</red>: {str(e)}. Reconnecting...")
+                continue
 
     async def clicker(self, proxy, http_client: aiohttp.ClientSession):
         logger.success(f"<light-yellow>{self.session_name}</light-yellow> | ✅ AutoTapper <light-green>started!</light-green>")
