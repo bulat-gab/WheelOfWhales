@@ -1,8 +1,7 @@
-[![Static Badge](https://img.shields.io/badge/Телеграм-Наш_канал-Link?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/hidden_coding)
-
-[![Static Badge](https://img.shields.io/badge/Телеграм-Наш_чат-Link?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/hidden_codding_chat)
-
-[![Static Badge](https://img.shields.io/badge/Телеграм-Ссылка_на_бота-Link?style=for-the-badge&logo=Telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/wheelofwhalesbot?start=CGYJGk91pub)
+[![Канал](https://img.shields.io/badge/-Канал-black?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/hidden_coding)
+[![Чат](https://img.shields.io/badge/-Чат-black?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/hidden_codding_chat)
+[![Ссылка на бота](https://img.shields.io/badge/-Ссылка%20на%20бота-black?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/wheelofwhalesbot?start=CGYJGk91pub)
+[![Ссылка на маркет](https://img.shields.io/badge/-Ссылка%20на%20маркет-black?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/hcmarket_bot?start=referral_5143703753)
 
 ## Рекомендация перед использованием
 
