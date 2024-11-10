@@ -1,7 +1,7 @@
-[![CHANNEL](https://img.shields.io/badge/-CHANNEL-white?style=for-the-badge&logo=telegram&logoColor=black)](https://t.me/hidden_coding)
-[![CHAT](https://img.shields.io/badge/-CHAT-white?style=for-the-badge&logo=telegram&logoColor=black)](https://t.me/hidden_codding_chat)
-[![BOT LINK](https://img.shields.io/badge/-BOT%20LINK-white?style=for-the-badge&logo=telegram&logoColor=black)](https://t.me/wheelofwhalesbot?start=CGYJGk91pub)
-[![BOT MARKET](https://img.shields.io/badge/-BOT%20MARKET-white?style=for-the-badge&logo=telegram&logoColor=black)](https://t.me/hcmarket_bot?start=referral_5143703753)
+[![CHANNEL](https://img.shields.io/badge/-CHANNEL-black?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/hidden_coding)
+[![CHAT](https://img.shields.io/badge/-CHAT-black?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/hidden_codding_chat)
+[![BOT LINK](https://img.shields.io/badge/-BOT%20LINK-black?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/wheelofwhalesbot?start=CGYJGk91pub)
+[![Static Badge](https://img.shields.io/badge/-BOT%20MARKET-white?style=for-the-badge&logo=telegram&logoColor=black)](https://t.me/hcmarket_bot?start=referral_5143703753)
 
 ## Recommendation before use
 
