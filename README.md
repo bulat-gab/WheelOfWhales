@@ -115,5 +115,4 @@ You can also use arguments for quick start, for example:
 
 ### Contacts
 
-For support or questions, contact me on Telegram: 
-[![Static Badge](https://img.shields.io/badge/telegram-bot_author-link?style=for-the-badge&logo=telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/yummy1gay)
+[![Support](https://img.shields.io/badge/For%20support%20or%20questions-BOT%20AUTHOR-blue?style=for-the-badge&logo=telegram&logoColor=white&labelColor=black)](https://t.me/yummy1gay)
