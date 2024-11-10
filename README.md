@@ -39,16 +39,24 @@
 
 ## Quick Start 📚
 
-To fast install libraries and run bot - open run.bat on Windows or run.sh on Linux
+To quickly install the required libraries and run the bot:
+
+1. Open `run.bat` on Windows or `run.sh` on Linux.
+
+---
 
 ## Prerequisites
-Before you begin, make sure you have the following installed:
-- [Python](https://www.python.org/downloads/) **version 3.10**
 
-## Obtaining API Keys
-1. Go to my.telegram.org and log in using your phone number.
+Make sure you have Python **3.10** installed.  
+Download Python [here](https://www.python.org/downloads/).
+
+### Obtaining API Keys
+
+1. Visit [my.telegram.org](https://my.telegram.org) and log in with your phone number.
 2. Select "API development tools" and fill out the form to register a new application.
-3. Record the API_ID and API_HASH provided after registering your application in the .env file.
+3. Note down your **API_ID** and **API_HASH** from the site and add them to the `.env` file.
+
+---
 
 ## Installation
 You can download the [**repository**](https://github.com/yummy1gay/WheelOfWhales) by cloning it to your system and installing the necessary dependencies:
