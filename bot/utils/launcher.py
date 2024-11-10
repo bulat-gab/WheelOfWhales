@@ -12,6 +12,7 @@ from bot.utils import logger
 from bot.core.tapper import run_tapper
 from bot.core.registrator import register_sessions
 from bot.utils import count
+from bot.utils.proxy_utils_v2 import create_tg_client_proxy_pairs
 
 start_text = """
 
@@ -39,17 +40,6 @@ def get_session_names() -> list[str]:
     ]
 
     return session_names
-
-
-def get_proxies() -> list[Proxy]:
-    if settings.USE_PROXY_FROM_FILE:
-        with open(file="bot/config/proxies.txt", encoding="utf-8-sig") as file:
-            proxies = [Proxy.from_str(proxy=row.strip()).as_url for row in file]
-    else:
-        proxies = []
-
-    return proxies
-
 
 async def get_tg_clients() -> list[Client]:
     global tg_clients
@@ -80,8 +70,6 @@ async def process() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--action", type=int, help="Action to perform")
 
-    logger.info(f"Detected {len(get_session_names())} sessions | {len(get_proxies())} proxies")
-
     action = parser.parse_args().action
 
     if not action:
@@ -110,16 +98,16 @@ async def process() -> None:
 
 
 async def run_tasks(tg_clients: list[Client]):
-    proxies = get_proxies()
-    proxies_cycle = cycle(proxies) if proxies else None
+    client_proxy_list = create_tg_client_proxy_pairs(tg_clients)
+
     tasks = [
         asyncio.create_task(
             run_tapper(
-                tg_client=tg_client,
-                proxy=next(proxies_cycle) if proxies_cycle else None,
+                tg_client=pair[0],
+                proxy=pair[1].as_url,
             )
         )
-        for tg_client in tg_clients
+        for pair in client_proxy_list
     ]
 
     await asyncio.gather(*tasks)

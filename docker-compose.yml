@@ -1,7 +1,6 @@
-version: '3'
 services:
   bot:
-    container_name: 'WheelOfWhales'
+    container_name: "WheelOfWhalesBot"
     build:
       context: .
     stop_signal: SIGINT
