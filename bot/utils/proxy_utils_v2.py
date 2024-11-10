@@ -35,19 +35,17 @@ def create_tg_client_proxy_pairs(tg_clients: list[Client]) -> list[tuple[Client,
     logger.info(f"Found {len(result)} sessions with proxies.")
     return result
 
-def get_delay_time_for_session(session_name: str) -> int:
-    delay_seconds = 3600
-
+def get_delay_time_for_session(session_name: str, base_delay=600) -> int:
     try:
         number = session_name[2:]
         number = int(number)
         if number <= 1:
             number = 1
 
-        delay_seconds = 3600 * (number - 1)
-        return delay_seconds
+        base_delay = base_delay * (number - 1)
+        return base_delay
     except:
-        return delay_seconds
+        return base_delay
 
 def _load_proxies_from_file() -> dict[str, Proxy]:
     if not os.path.exists(PROXY_FILE_PATH):
