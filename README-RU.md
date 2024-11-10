@@ -119,4 +119,4 @@ python main.py
 
 Для поддержки или вопросов, свяжитесь со мной в Telegram:
 
-[![Static Badge](https://img.shields.io/badge/Телеграм-автор_бота-link?style=for-the-badge&logo=telegram&logoColor=white&logoSize=auto&color=blue)](https://t.me/yummy1gay)
+[![Static Badge](https://img.shields.io/badge/Для%20поддержки%20или%20вопросов-АВТОР%20БОТА-blue?style=for-the-badge&logo=telegram&logoColor=white&labelColor=black)](https://t.me/yummy1gay)
