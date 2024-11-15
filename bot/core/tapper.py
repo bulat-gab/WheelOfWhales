@@ -993,10 +993,6 @@ class Tapper:
         if settings.USE_RANDOM_DELAY_IN_RUN:
             random_delay = random.randint(settings.RANDOM_DELAY_IN_RUN[0], settings.RANDOM_DELAY_IN_RUN[1])
 
-            # TODO: remove after initial run
-            from bot.utils import proxy_utils_v2
-            random_delay = proxy_utils_v2.get_delay_time_for_session(self.tg_client.name) + random_delay
-
             logger.info(f"<light-yellow>{self.session_name}</light-yellow> | ⏳ Bot will start in <ly>{random_delay}s</ly>")
             await asyncio.sleep(random_delay)
 
